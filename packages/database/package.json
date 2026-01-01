@@ -1,0 +1,29 @@
+{
+  "name": "@repo/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "types.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "generate-types": "npx supabase gen types typescript --project-id bsjbeahiskbhasswflld > types.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.1.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^17.2.3",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": "./index.ts"
+  }
+}

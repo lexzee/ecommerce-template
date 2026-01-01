@@ -1,0 +1,280 @@
+1. The Setup (Run this in the Supabase SQL Editor)
+First, we need to enable the extension for vector search.
+
+SQL
+
+-- Enable the pgvector extension to work with embeddings
+create extension if not exists vector;
+
+
+2. The Tables
+A. Profiles (Extending Supabase Auth)
+We link this to the default auth.users so you can manage extra details like addresses.
+
+SQL
+
+create table profiles (
+  id uuid references auth.users on delete cascade primary key,
+  full_name text,
+  phone_text text, -- Useful for delivery contact
+  shipping_address jsonb, -- Stores { street, city, state, zip } flexible for different regions
+  is_admin boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+B. Products (The Flexible Core)
+This table uses jsonb for the attributes column. This is the "magic" part that makes your template reusable.
+
+Perfume site: attributes = { "scent_notes": "floral", "volume": "50ml" }
+
+Food site: attributes = { "expiry_date": "2025-12-01", "batch_no": "A12" }
+
+Adult Toy site: attributes = { "material": "silicone", "battery_required": true }
+
+SQL
+
+create table products (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  slug text unique not null, -- for urls: site.com/product/dior-sauvage
+  description text not null, -- The source for your AI embeddings
+  price decimal(10, 2) not null, -- Handles currency math better than float
+  stock_quantity integer default 0,
+  
+  -- The magic column for niche specifics
+  attributes jsonb default '{}'::jsonb, 
+  
+  images text[], -- Array of image URLs from Supabase Storage
+  category text, 
+  is_available boolean default true,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+C. Product Embeddings (For the AI)
+We separate this to keep the main table clean. You will use a Gemini embedding model (like text-embedding-004) to populate this.
+
+SQL
+
+create table product_embeddings (
+  id uuid references products(id) on delete cascade primary key,
+  -- 768 is the dimension size for Gemini embeddings. 
+  -- If you use a different model, this number might change.
+  embedding vector(768) 
+);
+
+D. Orders & Tax Tracking
+As per your request for a tax feature and backtracking, we create a tax_log explicitly.
+
+SQL
+
+create table orders (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references profiles(id),
+  status text check (status in ('pending', 'paid', 'shipped', 'cancelled')) default 'pending',
+  total_amount decimal(10, 2) not null,
+  payment_method text, -- 'card', 'crypto', 'bank_transfer'
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+create table order_items (
+  id uuid default uuid_generate_v4() primary key,
+  order_id uuid references orders(id) on delete cascade,
+  product_id uuid references products(id),
+  quantity integer default 1,
+  price_at_purchase decimal(10, 2) not null -- Crucial: Price might change later, but this locks it in.
+);
+
+create table tax_ledger (
+  id uuid default uuid_generate_v4() primary key,
+  order_id uuid references orders(id) on delete cascade,
+  tax_amount decimal(10, 2) not null,
+  tax_percentage_applied decimal(5, 2) not null, -- Records that "7.5%" was used
+  region text default 'NG', -- Useful if you expand outside Nigeria
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+
+
+
+
+
+Database Search function
+
+create or replace function match_products (
+  query_embedding vector(768),
+  match_threshold float,
+  match_count int
+)
+returns table (
+  id uuid,
+  name text,
+  price decimal,
+  slug text,
+  images text[],
+  category text,
+  similarity float
+)
+language plpgsql
+as $$
+begin
+  return query
+  select
+    products.id,
+    products.name,
+    products.price,
+    products.slug,
+    products.images,
+    products.category,
+    1 - (product_embeddings.embedding <=> query_embedding) as similarity
+  from product_embeddings
+  join products on products.id = product_embeddings.id
+  where 1 - (product_embeddings.embedding <=> query_embedding) > match_threshold
+  order by similarity desc
+  limit match_count;
+end;
+$$;
+
+
+
+
+
+Database create profile
+
+-- 1. Create the Profiles Table
+create table public.profiles (
+  id uuid not null references auth.users on delete cascade primary key,
+  email text,
+  full_name text,
+  avatar_url text,
+  phone text,
+  -- We use JSONB so it can store { street, city, state } exactly like your checkout form
+  delivery_address jsonb, 
+  -- Your manual role flag (Default false)
+  is_role boolean default false, 
+  updated_at timestamp with time zone,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. Enable Security (RLS)
+alter table public.profiles enable row level security;
+
+-- Policy: Public profiles are viewable by everyone (or just admins if you prefer)
+create policy "Public profiles are viewable by everyone."
+  on profiles for select
+  using ( true );
+
+-- Policy: Users can insert their own profile.
+create policy "Users can insert their own profile."
+  on profiles for insert
+  with check ( auth.uid() = id );
+
+-- Policy: Users can update their own profile.
+create policy "Users can update own profile."
+  on profiles for update
+  using ( auth.uid() = id );
+
+-- 3. Create the Trigger Function
+-- This function runs automatically whenever a new user signs up
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name, avatar_url)
+  values (
+    new.id,
+    new.email,
+    new.raw_user_meta_data ->> 'full_name',
+    new.raw_user_meta_data ->> 'avatar_url'
+  );
+  return new;
+end;
+$$;
+
+-- 4. Attach the Trigger
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+
+
+
+
+Database for cart_items
+
+create table cart_items (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users not null,
+  product_id uuid references products(id) not null,
+  quantity integer default 1,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  
+  -- Ensure a user can't have duplicate rows for the same product (just update quantity instead)
+  unique(user_id, product_id)
+);
+
+-- Enable RLS (Row Level Security)
+alter table cart_items enable row level security;
+
+-- Policy: Users can only see/edit their own cart
+create policy "Users can view their own cart" 
+  on cart_items for select 
+  using (auth.uid() = user_id);
+
+create policy "Users can insert into their own cart" 
+  on cart_items for insert 
+  with check (auth.uid() = user_id);
+
+create policy "Users can update their own cart" 
+  on cart_items for update 
+  using (auth.uid() = user_id);
+
+create policy "Users can delete their own cart" 
+  on cart_items for delete 
+  using (auth.uid() = user_id);
+
+
+
+
+
+Orders
+
+-- 1. Create Orders Table
+create table orders (
+  id uuid default uuid_generate_v4() primary key,
+  --user_id uuid references auth.users not null,
+  user_id uuid references profiles(id) on delete cascade not null,
+  status text default 'pending', -- pending, paid, shipped, delivered
+  total_amount decimal(10,2) not null,
+  shipping_address jsonb not null, -- Stores { street, city, state, phone }
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- 2. Create Order Items Table (Snapshot of what they bought)
+create table order_items (
+  id uuid default uuid_generate_v4() primary key,
+  order_id uuid references orders(id) on delete cascade not null,
+  product_id uuid references products(id) not null,
+  quantity integer not null,
+  unit_price decimal(10,2) not null -- Price AT TIME OF PURCHASE
+);
+
+-- 3. Enable RLS
+alter table orders enable row level security;
+alter table order_items enable row level security;
+
+-- 4. Policies
+create policy "Users can view their own orders" 
+  on orders for select using (auth.uid() = user_id);
+
+create policy "Users can create their own orders" 
+  on orders for insert with check (auth.uid() = user_id);
+
+create policy "Users can view their own order items" 
+  on order_items for select 
+  using ( exists ( select 1 from orders where orders.id = order_items.order_id and orders.user_id = auth.uid() ) );
+
+create policy "Users can insert their own order items" 
+  on order_items for insert 
+  with check ( exists ( select 1 from orders where orders.id = order_items.order_id and orders.user_id = auth.uid() ) );
