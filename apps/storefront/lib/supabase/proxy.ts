@@ -110,18 +110,18 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
-    if (!user) {
-      if (
-        !request.nextUrl.pathname.startsWith("/login") &&
-        !request.nextUrl.pathname.startsWith("/auth") &&
-        !request.nextUrl.pathname.startsWith("/register")
-      ) {
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        return NextResponse.redirect(url);
-      }
-    }
+    // if (!user) {
+    //   if (
+    //     !request.nextUrl.pathname.startsWith("/login") &&
+    //     !request.nextUrl.pathname.startsWith("/auth") &&
+    //     !request.nextUrl.pathname.startsWith("/register")
+    //   ) {
+    //     // no user, potentially respond by redirecting the user to the login page
+    //     const url = request.nextUrl.clone();
+    //     url.pathname = "/login";
+    //     return NextResponse.redirect(url);
+    //   }
+    // }
   } catch (error) {
     console.error("❌ CRITICAL CRASH in getUser:", error);
   }
