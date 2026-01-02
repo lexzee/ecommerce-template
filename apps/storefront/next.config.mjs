@@ -10,7 +10,7 @@ const nextConfig = {
   // To be removed if necessecary
   skipTrailingSlashRedirect: true,
   skipProxyUrlNormalize: true,
-  cacheComponents: true,
+  // cacheComponents: true,
 
   transpilePackages: ["@workspace/ui"],
   images: {

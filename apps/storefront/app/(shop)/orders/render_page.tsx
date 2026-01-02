@@ -1,6 +1,7 @@
 import { formatCurrency, getStatusColor } from "@/lib/helpers";
 import { getUserManually } from "@/lib/supabase/proxy";
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@workspace/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
@@ -97,10 +98,22 @@ async function RenderOrdersPage() {
                 </div>
               </div>
               <div className="text-left sm:text-right">
-                <p className="text-sm text-muted-foreground">Total Amount</p>
-                <p className="text-xl font-bold">
-                  {formatCurrency(order.total_amount)}
-                </p>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Amount
+                    </p>
+                    <p className="text-xl font-bold">
+                      {formatCurrency(order.total_amount)}
+                    </p>
+                  </div>
+                  <Link href={`/orders/${order.id}/receipt`}>
+                    {/* <Button variant="outline" size="sm">
+                      View Receipt
+                    </Button> */}
+                    View Receipt
+                  </Link>
+                </div>
               </div>
             </CollapsibleTrigger>
 
