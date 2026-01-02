@@ -1,8 +1,11 @@
+import { MobileFilters } from "@/components/mobile_filters";
 import { ProductGridServer } from "@/components/product-grid-server";
 import { ProductFilters } from "@/components/product_filters";
+import { SearchInput } from "@/components/search_input";
 import { SortSelect } from "@/components/sort_select";
 import { siteConfig } from "@/config/site";
 import { Suspense } from "react";
+// import { Suspense, useEffect, useState } from "react";
 
 type SearchParams = {
   sort?: string;
@@ -29,9 +32,12 @@ export default async function Page({
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar */}
-        <aside className="w-full lg:w-64 flex-shrink-0">
+        {/* <aside className="w-full lg:w-64 flex-shrink-0"> */}
+        <aside className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-20">
-            <Suspense>
+            <Suspense
+              fallback={<div className="h-64 bg-gray-100 animate-pulse" />}
+            >
               <ProductFilters />
             </Suspense>
           </div>
@@ -39,14 +45,28 @@ export default async function Page({
 
         {/* Right Content */}
         <div className="flex-1">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">
+          {/* <div className="flex justify-between items-center mb-6"> */}
+          <div className="flex sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            {/* <h2 className="text-xl font-semibold">
               Catalog
-              {/* ({products?.length || 0}) */}
-            </h2>
-            <Suspense>
-              <SortSelect />
-            </Suspense>
+            </h2> */}
+            <div className="w-full sm:w-auto sm:flex-1 max-w-md">
+              <Suspense>
+                <SearchInput />
+              </Suspense>
+            </div>
+
+            <div className="flex  sm:w-auto gap-2">
+              <div className="lg:hidden">
+                <MobileFilters />
+              </div>
+            </div>
+
+            <div className="flex-1 sm:flex-none">
+              <Suspense>
+                <SortSelect />
+              </Suspense>
+            </div>
           </div>
 
           {/* ProductGrid */}

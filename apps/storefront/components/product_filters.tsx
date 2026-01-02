@@ -1,7 +1,7 @@
 "use client";
-
+import { siteConfig } from "@/config/site";
+import { createTypedClient } from "@repo/database";
 import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import {
   RadioGroup,
@@ -14,14 +14,25 @@ export function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [search, setSearch] = useState(searchParams.get("q") || "");
-  const [gender, setGender] = useState<string | undefined>(
-    searchParams.get("gender") || undefined
-  );
+  const [dynamicFilters, setDynamicFilters] = useState<
+    Record<string, string[]>
+  >({});
 
   useEffect(() => {
-    setGender(searchParams.get("gender") || undefined);
-  }, [searchParams.toString()]);
+    const supabase = createTypedClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
+    );
+    const getFilters = async () => {
+      const { data: rawFilters } = await supabase.rpc("get_niche_attributes", {
+        niche_category: siteConfig.niche,
+      });
+
+      setDynamicFilters((rawFilters as Record<string, string[]>) || {});
+    };
+
+    getFilters();
+  }, []);
 
   const updateFilter = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -32,74 +43,76 @@ export function ProductFilters() {
       params.delete(key);
     }
 
-    const q = params.toString();
-    router.replace(q ? `${pathname}?${q}` : pathname);
-  };
+    // Reset page to 1 on filter change if you implement pagination later
+    // params.delete('page');
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateFilter("q", search);
+    const q = params.toString();
+    router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
   };
 
   return (
     <div className="space-y-8">
-      {/* Search by Name */}
-      <form onSubmit={handleSearch} className="space-y-2">
-        <h3 className="font-semibold mb-2">Search</h3>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Button type="submit" size="sm">
-            Go
-          </Button>
-        </div>
+      <div className="hidden md:block">
+        <h2 className="text-lg font-bold">Filters</h2>
+        <p className="text-muted-foreground text-sm">
+          Refine your search by category, price and more
+        </p>
+      </div>
+      {Object.entries(dynamicFilters).map(([attributeKey, options]) => {
+        if (!options || options.length === 0) return null;
 
-        {/* Gender Filter */}
-        <div className="space-y-2">
-          <h3 className="font-semibold b-2">Gender</h3>
-          <RadioGroup
-            className="spcace-y-2 flex lg:flex-col"
-            defaultValue={gender}
-            onValueChange={(val) => {
-              setGender(val || undefined);
-              updateFilter("gender", val);
-            }}
-          >
-            {["Male", "Female", "Unisex"].map((val) => (
-              <Label key={val} className="flex items-center gap-2 text-sm">
-                <RadioGroupItem value={val} /> {val}
-              </Label>
-            ))}
-            <Button
-              onClick={() => {
-                setGender(undefined);
-                updateFilter("gender", null);
-              }}
-              variant="secondary"
-              type="button"
-              className="text-xs"
-              size="sm"
+        const currentVal = searchParams.get(attributeKey);
+
+        return (
+          <div className="space-y-3" key={attributeKey}>
+            <h3 className="font-semibold capitalize text-sm">
+              {attributeKey.replace("_", " ")}
+            </h3>
+
+            <RadioGroup
+              value={currentVal || ""}
+              onValueChange={(val) => updateFilter(attributeKey, val)}
             >
-              Clear
-            </Button>
-          </RadioGroup>
-        </div>
+              {options.map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={option}
+                    id={`${attributeKey}-${option}`}
+                  />
+                  <Label
+                    htmlFor={`${attributeKey}-${option}`}
+                    className="text-sm cursor-pointer font-normal"
+                  >
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
 
-        {/* More Sections */}
-        <div className="pt-4 border-t">
-          <Button
-            variant="outline"
-            className="w-full"
-            type="button"
-            onClick={() => router.replace(pathname)}
-          >
-            Reset All Filters
-          </Button>
-        </div>
-      </form>
+            {currentVal && (
+              <Button
+                variant={"ghost"}
+                size="sm"
+                className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => updateFilter(attributeKey, null)}
+              >
+                {`Reset ${attributeKey}`}
+              </Button>
+            )}
+          </div>
+        );
+      })}
+
+      <div className="pt-4 border-t">
+        <Button
+          variant="outline"
+          className="w-full"
+          type="button"
+          onClick={() => router.replace(pathname)}
+        >
+          Reset All Filters
+        </Button>
+      </div>
     </div>
   );
 }

@@ -110,7 +110,15 @@ export type Database = {
           total_amount?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey_profiles"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_embeddings: {
         Row: {
@@ -218,6 +226,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_niche_attributes: { Args: { niche_category: string }; Returns: Json }
       match_products: {
         Args: {
           match_count: number

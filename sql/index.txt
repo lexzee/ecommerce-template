@@ -135,6 +135,32 @@ end;
 $$;
 
 
+Get Niche attributes function
+
+-- Returns: { "gender": ["Male", "Female"], "scent": ["Oud", "Floral"], "brand": ["Dior", "Chanel"] }
+create or replace function get_niche_attributes(niche_category text)
+returns jsonb
+language plpgsql
+as $$
+declare
+  result jsonb;
+begin
+  select jsonb_object_agg(key, values)
+  into result
+  from (
+    select key, jsonb_agg(distinct value) as values
+    from products,
+    jsonb_each_text(attributes) as kv(key, value)
+    where category = niche_category
+    and is_available = true
+    group by key
+  ) sub;
+  
+  return result;
+end;
+$$;
+
+
 
 
 

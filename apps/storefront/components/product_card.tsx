@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: any }) {
         <Link href={`/product/${product.slug || product.id}`}>
           {product.images?.[0] ? (
             <Image
-              //   <img
+              loading="eager"
               src={product.images[0]}
               alt={product.name}
               className="h-full w-full object-cover transition-transform group-hover:scale-105"

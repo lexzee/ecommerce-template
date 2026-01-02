@@ -21,14 +21,22 @@ export async function ProductGridServer({ searchParams }: ProductGridProps) {
 
   let params = await searchParams;
 
-  if (params.q) {
+  // Reserved keys that are NOT product attributes
+  const reservedKeys = ["q", "sort", "page", "limit"];
+
+  // Dynamic JSONB Filetring
+  Object.entries(params).forEach(([key, value]) => {
+    if (!reservedKeys.includes(key) && value && typeof value === "string") {
+      query = query.contains("attributes", { [key]: value });
+    }
+  });
+
+  // Text Search
+  if (params.q && typeof params.q === "string") {
     query = query.ilike("name", `%${params.q}%`);
   }
 
-  if (params.gender) {
-    query = query.contains("attributes", { gender: params.gender });
-  }
-
+  // Sorting
   switch (params.sort) {
     case "price_asc":
       query = query.order("price", { ascending: true });
