@@ -1,6 +1,5 @@
 "use client";
 
-import { useCart } from "@/lib/cart_store";
 import Image from "next/image";
 import Link from "next/link";
 import { AddToCartButton } from "./add_to_cart_button";
