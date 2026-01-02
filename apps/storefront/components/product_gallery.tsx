@@ -54,6 +54,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
                   className="object-cover w-full h-full"
                   width={100000}
                   height={100000}
+                  loading="eager"
                 />
               </div>
             </CarouselItem>
