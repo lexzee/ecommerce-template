@@ -76,18 +76,18 @@ export async function placeOrder(formData: FormData, user: any) {
   await supabase.from("cart_items").delete().eq("user_id", user.id);
   //   console.log("🟢 ORDER: Success! Order ID:", order.id);
 
-  await supabase
-    .from("profiles")
-    .update({
-      phone: formData.get("phone"),
-      delivery_address: {
-        street: formData.get("street"),
-        city: formData.get("city"),
-        state: formData.get("state"),
-      },
-    })
-    .eq("id", user.id)
-    .is("delivery_address", null);
+  // await supabase
+  //   .from("profiles")
+  //   .update({
+  //     phone: formData.get("phone"),
+  //     delivery_address: {
+  //       street: formData.get("street"),
+  //       city: formData.get("city"),
+  //       state: formData.get("state"),
+  //     },
+  //   })
+  //   .eq("id", user.id)
+  //   .is("delivery_address", null);
 
   return { sucess: true, orderId: order.id };
 }

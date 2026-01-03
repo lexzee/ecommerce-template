@@ -22,18 +22,17 @@ export function SiteHeader() {
   }, []);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      // console.log("Header User Check:", data.user?.email);
       setUser(data.user);
       cart.fetchCart();
     });
 
-    // const {
-    //   data: { subscription },
-    // } = supabase.auth.onAuthStateChange((_event, session) => {
-    //   setUser(session?.user ?? null);
-    // });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-    // return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
     // Re-run when cookies change so auth state is re-checked
     // Use a safe read for document.cookie to avoid SSR issues
   }, [typeof document !== "undefined" ? document.cookie : ""]);

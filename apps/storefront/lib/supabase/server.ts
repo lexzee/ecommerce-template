@@ -1,6 +1,7 @@
 "use server";
 import { CookieOptions, createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getSupabseCookieName } from "../helpers";
 
 const [url, key] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,12 +12,6 @@ interface cookiesProps {
   name: string;
   value: string;
   options: CookieOptions;
-}
-function getSupabseCookieName() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  // @ts-ignore
-  const projectId = url.split("//")[1].split(".")[0];
-  return `sb-${projectId}-auth-token`;
 }
 
 export async function createClient() {
