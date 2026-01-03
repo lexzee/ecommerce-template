@@ -4,6 +4,7 @@ import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site_header";
 import { ChatWidget } from "@/components/chat_widget";
+import { Toaster } from "@workspace/ui/components/sonner";
 
 export default function RootLayout({
   children,
@@ -23,6 +24,7 @@ export default function RootLayout({
           </div>
           <ChatWidget />
         </div>
+        <Toaster />
       </body>
     </html>
   );

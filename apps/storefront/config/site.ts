@@ -19,4 +19,5 @@ export const siteConfig = {
     country: "Nigeria",
     email: "support@scentsbynurryo.com",
   },
+  phone: "2347068577887",
 };
