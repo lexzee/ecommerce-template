@@ -304,3 +304,31 @@ create policy "Users can view their own order items"
 create policy "Users can insert their own order items" 
   on order_items for insert 
   with check ( exists ( select 1 from orders where orders.id = order_items.order_id and orders.user_id = auth.uid() ) );
+
+
+
+
+Review Table
+
+create table if not exists public.reviews (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles on delete cascade not null,
+  product_id uuid references public.products on delete cascade not null,
+  rating integer check (rating >= 1 and rating <= 5) not null,
+  comment text,
+  is_verified boolean default false, -- true if user bought the item
+  created_at timestamp with time zone default now()
+);
+
+-- Enable RLS
+alter table public.reviews enable row level security;
+
+-- Policies
+create policy "Reviews are viewable by everyone"
+  on public.reviews for select using (true);
+
+create policy "Users can insert their own reviews"
+  on public.reviews for insert with check (auth.uid() = user_id);
+
+-- Optional: Prevent duplicate reviews (One review per product per user)
+create unique index idx_unique_review on public.reviews (user_id, product_id);
