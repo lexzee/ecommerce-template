@@ -18,7 +18,11 @@ export async function ProductReviews({ productId }: { productId: string }) {
 
   return (
     <div className="space-y-10 mt-16 border-t pt-10">
-      <h2 className="text-2xl font-bold">Customer Reviews</h2>
+      <h2 className="text-md font-bold">
+        Customer Reviews
+        <br />
+        <span className="text-xs font-thin">{reviews?.length} ratings</span>
+      </h2>
 
       <div className="grid md:grid-cols-2 gap-12">
         {/* Left */}
@@ -32,15 +36,12 @@ export async function ProductReviews({ productId }: { productId: string }) {
               <div className="border-b pb-6 last:border-0" key={review.id}>
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
+                    {/* <Avatar className="h-8 w-8">
                       <AvatarFallback>
                         {review.profiles?.full_name?.[0] || "U"}
                       </AvatarFallback>
-                    </Avatar>
+                    </Avatar> */}
                     <div>
-                      <p className="text-sm font-semibold">
-                        {review.profiles?.full_name || "Anonymous"}
-                      </p>
                       <div className="flex items-center gap-2">
                         <StarRating value={review.rating} readOnly />
                         {review.is_verified && (
@@ -58,7 +59,10 @@ export async function ProductReviews({ productId }: { productId: string }) {
                     {new Date(review.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-700 mt-2 text-sm">{review.comment}</p>
+                <p className="mt-2 text-sm">{review.comment}</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  By {review.profiles?.full_name || "Anonymous"}
+                </p>
               </div>
             ))
           )}
