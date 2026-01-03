@@ -1,5 +1,6 @@
 import { AddToCartButton } from "@/components/add_to_cart_button";
 import { ProductGallery } from "@/components/product_gallery";
+import { ProductReviews } from "@/components/reviews/product_reviews";
 import { siteConfig } from "@/config/site";
 import { createTypedClient } from "@repo/database";
 import { notFound } from "next/navigation";
@@ -86,6 +87,7 @@ export default async function RenderProductPage({
           </div>
         </div>
       </div>
+      <ProductReviews productId={product.id} />
     </div>
   );
 }
