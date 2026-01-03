@@ -104,7 +104,7 @@ export function ChatWidget() {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 print:hidden"
         size="icon"
       >
         {isOpen ? <X /> : <MessageCircle />}

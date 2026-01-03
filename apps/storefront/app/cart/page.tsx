@@ -20,7 +20,7 @@ export default function CartPage() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="container flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <div className="p-6 bg-muted rounded-full">
           <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>

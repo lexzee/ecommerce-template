@@ -3,6 +3,7 @@ import { getUserManually } from "@/lib/supabase/proxy";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@repo/database";
 import { error } from "console";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 const [url, key, adminKey] = [
@@ -16,32 +17,25 @@ const [paystackSKey, paystackPKey] = [
   process.env.PAYSTACK_PUBLC_KEY!,
 ];
 
-export async function placeOrder(formData: FormData, user: any) {
+export async function placeOrder(
+  address: any,
+  user: any,
+  items: any[],
+  total: number
+) {
   const supabase = await createClient();
-  const supabaseAdminClient = createAdminClient(url, adminKey);
-  if (!user) return { error: "You must be logged in to continue!" };
 
-  const address = {
-    fullName: formData.get("fullName"),
-    street: formData.get("street"),
-    city: formData.get("city"),
-    state: formData.get("state"),
-    phone: formData.get("phone"),
-  };
+  if (!items || items.length == 0) {
+    return { error: "Cart is empty" };
+  }
 
   const { data: cartItems } = await supabase
     .from("cart_items")
     .select("quantity, product: products(id, price)")
     .eq("user_id", user.id);
 
-  //   console.log(cartItems);
-
   if (!cartItems || cartItems.length === 0) return { error: "Cart is empty" };
 
-  const total = cartItems.reduce(
-    (sum: number, item: any) => sum + item.quantity * item.product.price,
-    0
-  );
   const vat = total * 0.075;
 
   const { data: order, error: orderError } = await supabase
@@ -56,7 +50,6 @@ export async function placeOrder(formData: FormData, user: any) {
     .single();
 
   if (orderError) return { error: orderError.message };
-  //   console.log(order);
 
   const orderItemsData = cartItems.map((item: any) => ({
     order_id: order.id,
@@ -74,21 +67,8 @@ export async function placeOrder(formData: FormData, user: any) {
     return { error: "Failed to save items", message: itemsError.message };
 
   await supabase.from("cart_items").delete().eq("user_id", user.id);
-  //   console.log("🟢 ORDER: Success! Order ID:", order.id);
 
-  await supabase
-    .from("profiles")
-    .update({
-      phone: formData.get("phone"),
-      delivery_address: {
-        street: formData.get("street"),
-        city: formData.get("city"),
-        state: formData.get("state"),
-      },
-    })
-    .eq("id", user.id)
-    .is("delivery_address", null);
-
+  revalidatePath("/orders");
   return { sucess: true, orderId: order.id };
 }
 

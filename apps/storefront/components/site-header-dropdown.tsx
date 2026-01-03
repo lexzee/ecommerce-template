@@ -30,6 +30,15 @@ export function MenuDropDown() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
+            {" "}
+            <Link
+              href="/account/profile"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
             <Button
               variant={"ghost"}
               size={"sm"}
