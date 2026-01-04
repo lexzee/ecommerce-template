@@ -4,7 +4,6 @@ import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { cn } from "@workspace/ui/lib/utils";
 import { Bot, MessageCircle, Send, User, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -104,7 +103,7 @@ export function ChatWidget() {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 print:hidden"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-60 print:hidden"
         size="icon"
       >
         {isOpen ? <X /> : <MessageCircle />}
@@ -158,7 +157,7 @@ export function ChatWidget() {
 
                   {/* If products were returned with the message, show mini cards */}
                   {m.products && m.products.length > 0 && (
-                    <div className="mt-3 grid gap-2">
+                    <div className="mt-3 grid gap-2 w-full">
                       {m.products.map((p) => (
                         <Link
                           key={p.id}
@@ -172,7 +171,11 @@ export function ChatWidget() {
                             />
                           )}
                           <div className="overflow-hidden">
-                            <div className="font-medium truncate">{p.name}</div>
+                            <div className="font-medium">
+                              {p.name.length > 25
+                                ? p.name.slice(0, 22) + "..."
+                                : p.name}
+                            </div>
                             <div className="text-xs opacity-70">
                               {new Intl.NumberFormat("en-NG", {
                                 style: "currency",

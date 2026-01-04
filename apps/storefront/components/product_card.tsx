@@ -20,11 +20,17 @@ export function ProductCard({ product }: { product: any }) {
     currency: "NGN",
   }).format(product.price);
 
+  const renderName = (name: string) => {
+    return name.length > 45 ? `${name.slice(0, 45)}...` : name;
+  };
+
   return (
     <div className="group w-full md:w-60 relative rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md">
       {/* Image Aspect Ratio Wrapper */}
-      <div className="aspect-square relative overflow-hidden rounded-t-lg bg-gray-100">
-        <Link href={`/product/${product.slug || product.id}`}>
+
+      <Link href={`/product/${product.slug || product.id}`}>
+        <div className="aspect-square relative overflow-hidden rounded-t-lg bg-gray-100">
+          {/* <Link href={`/product/${product.slug || product.id}`}> */}
           {product.images?.[0] ? (
             <Image
               loading="eager"
@@ -39,23 +45,25 @@ export function ProductCard({ product }: { product: any }) {
               No Image
             </div>
           )}
-        </Link>
-      </div>
+          {/* </Link> */}
+        </div>
 
-      <div className="p-4">
-        <Link href={`/product/${product.slug || product.id}`}>
-          <h3 className="font-semibold leading-none tracking-tight">
-            {product.name}
+        <div className="flex flex-col gap-1 p-4 h-30">
+          {/* <h3 className="font-semibold leading-none tracking-tight"> */}
+          <h3 className="font-normal text-xs leading-4 tracking-normal">
+            {renderName(product.name)}
           </h3>
-        </Link>
-        <p className="mt-2 text-muted-foreground">{product.category}</p>
-        <div className="flex mt-4 items-center justify-between">
-          <span className="font-bold">{price}</span>
-
-          <div>
-            <AddToCartButton product={product} />
+          {/* <p className="mt-2 text-muted-foreground">{product.category}</p> */}
+          {/* <p className="text-muted-foreground text-xs">{product.category}</p> */}
+          <div className="flex items-center justify-between">
+            {/* <span className="font-bold">{price}</span> */}
+            <span className="font-semibold">{price}</span>
           </div>
         </div>
+      </Link>
+
+      <div className="w-full p-2">
+        <AddToCartButton product={product} className="h-8 text-sm" />
       </div>
     </div>
   );

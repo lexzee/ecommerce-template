@@ -49,12 +49,6 @@ export default async function RenderProductPage({
         {/* Right Column */}
         <div className="space-y-6">
           <div className="space-y-2">
-            {/* <h1 className="text-3xl font-bold tracking-tight">
-              {product.name}
-            </h1>
-            <p className="text-muted-foreground capitalize mt-2 text-lg">
-              {product.category}
-            </p> */}
             <h1 className="text-lg tracking-tight">{product.name}</h1>
             <p className="text-xs">
               Brand:{" "}
@@ -83,7 +77,7 @@ export default async function RenderProductPage({
               <CardTitle>Description</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm">{product.description.slice(0, 5000)}</p>
+              <p className="text-sm">{product.description.slice(0, 500)} ...</p>
             </CardContent>
           </Card>
 

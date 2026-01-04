@@ -20,7 +20,13 @@ interface ProductMinimal {
   price: number;
   images: string[] | null;
 }
-export function AddToCartButton({ product }: { product: ProductMinimal }) {
+export function AddToCartButton({
+  product,
+  className,
+}: {
+  product: ProductMinimal;
+  className: string;
+}) {
   const cart = useCart();
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -72,7 +78,11 @@ export function AddToCartButton({ product }: { product: ProductMinimal }) {
   }
 
   return (
-    <Button size={"sm"} onClick={handleAdd} className="w-full h-12 text-base">
+    <Button
+      size={"sm"}
+      onClick={handleAdd}
+      className={`w-full h-12 text-base ${className}`}
+    >
       Add
     </Button>
   );

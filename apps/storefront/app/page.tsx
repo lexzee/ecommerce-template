@@ -5,7 +5,6 @@ import { SearchInput } from "@/components/search_input";
 import { SortSelect } from "@/components/sort_select";
 import { siteConfig } from "@/config/site";
 import { Suspense } from "react";
-// import { Suspense, useEffect, useState } from "react";
 
 type SearchParams = {
   sort?: string;
@@ -19,7 +18,7 @@ export default async function Page({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <main className="container py-10 mx-auto px-4">
+    <main className="container py-10 mx-auto px-4 ">
       {/* Hero */}
       <section className="mb-12 space-y-4 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -45,24 +44,17 @@ export default async function Page({
 
         {/* Right Content */}
         <div className="flex-1">
-          {/* <div className="flex justify-between items-center mb-6"> */}
           <div className="flex sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             {/* <h2 className="text-xl font-semibold">
               Catalog
             </h2> */}
-            <div className="w-full sm:w-auto sm:flex-1 max-w-md">
+            <div className="w-full lg:flex-1">
               <Suspense>
                 <SearchInput />
               </Suspense>
             </div>
 
-            <div className="flex  sm:w-auto gap-2">
-              <div className="lg:hidden">
-                <MobileFilters />
-              </div>
-            </div>
-
-            <div className="flex-1 sm:flex-none">
+            <div className="hidden lg:block flex-1 sm:flex-none">
               <Suspense>
                 <SortSelect />
               </Suspense>
@@ -73,6 +65,13 @@ export default async function Page({
           <Suspense fallback={<ProductGridSkeleton />}>
             <ProductGridServer searchParams={searchParams} />
           </Suspense>
+        </div>
+      </div>
+
+      <div className="fixed w-full h-10 bg-transparent z-20 bottom-7 flex justify-center items-center lg:hidden">
+        <div className="min-w-20 min-h-10 flex items-center bg-background rounded-md">
+          <SortSelect />
+          <MobileFilters />
         </div>
       </div>
     </main>

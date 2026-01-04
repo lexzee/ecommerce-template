@@ -35,7 +35,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">
+      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">
         No images
       </div>
     );
@@ -47,7 +47,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
         <CarouselContent>
           {images.map((src, index) => (
             <CarouselItem key={index}>
-              <div className="relative aspect-video overflow-hidden rounded-lg border bg-white">
+              <div className="relative aspect-square overflow-hidden rounded-lg border bg-white">
                 <Image
                   src={src}
                   alt={`Product Image ${index + 1}`}

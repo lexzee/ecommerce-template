@@ -17,7 +17,11 @@ export function MobileFilters() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant={"outline"} size={"sm"} className="lg:hidden gap-2">
+        <Button
+          variant={"outline"}
+          size={"sm"}
+          className="lg:hidden gap-2 outline-none border-none"
+        >
           <Filter className="h-4 w-4" />
           Filters
         </Button>

@@ -25,8 +25,7 @@ const formSchema = z.object({
     .min(0, "Stock quantity cannot be negative."),
   category: z.string().min(1, "Please select a category."),
   attributes: z.record(z.any(), z.any()),
-  // images: z.array(z.string()).min(1, "At least one image is required."),
-  images: z.array(z.string()).min(0, "At least one image is required."),
+  images: z.array(z.string()).min(1, "At least one image is required."),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -79,7 +78,9 @@ export function ProductForm() {
           attributes: values.attributes,
           images: values.images,
           slug:
-            values.name.toLowerCase().replace(/\s+/g, "-") + "_" + Date.now(),
+            values.name.slice(0, 8).toLowerCase().replace(/\s+/g, "-") +
+            "_" +
+            Date.now(),
         })
         .select() // To get the new ID back
         .single();

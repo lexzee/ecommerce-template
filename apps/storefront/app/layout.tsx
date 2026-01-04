@@ -19,7 +19,7 @@ export default function RootLayout({
       >
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
-          <div className="flex-1">
+          <div className="flex-1 lg:mx-72">
             <Providers>{children}</Providers>
           </div>
           <ChatWidget />
