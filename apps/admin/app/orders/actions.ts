@@ -12,9 +12,11 @@ export type FormState = {
 export async function updateOrderStatus(
   //   prevState: any,
   orderId: string,
-  newStatus: string
+  prevState: any,
+  formData: FormData
 ) {
   const supabase = await createClient();
+  const newStatus = formData.get("status") as string;
 
   const { error } = await supabase
     .from("orders")

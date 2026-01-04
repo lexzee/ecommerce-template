@@ -3,8 +3,13 @@
 import { useActionState, useState, useEffect } from "react";
 import { FormState, updateOrderStatus } from "../actions";
 import { Button } from "@workspace/ui/components/button";
-import { CheckCircle, CheckCircle2Icon, Truck } from "lucide-react";
-import { toast } from "sonner";
+import {
+  AlertCircleIcon,
+  CheckCircle,
+  CheckCircle2Icon,
+  Loader2,
+  Truck,
+} from "lucide-react";
 import { Alert, AlertTitle } from "@workspace/ui/components/alert";
 
 const initialState: FormState = {
@@ -14,15 +19,14 @@ const initialState: FormState = {
 };
 
 function ManagementForm({ order }: any) {
-  const [status, setStatus] = useState("");
   const [state, formAction, isPending] = useActionState(
-    updateOrderStatus.bind(null, order.id, status),
+    updateOrderStatus.bind(null, order.id),
     initialState
   );
 
   return (
-    <>
-      {state.message && (
+    <div className="space-y-4">
+      {state?.message && (
         <Alert className="bg-green-100 text-green-800 border border-green-900">
           <CheckCircle2Icon />
           <AlertTitle>{state.message}</AlertTitle>
@@ -30,54 +34,66 @@ function ManagementForm({ order }: any) {
       )}{" "}
       {state.error && (
         <Alert variant={"destructive"} className="bg-red-100">
-          <CheckCircle2Icon />
+          <AlertCircleIcon />
           <AlertTitle>{state.error}</AlertTitle>
         </Alert>
       )}
-      {order.status !== "pending" && (
-        <form action={formAction}>
+      <form action={formAction} className="flex flex-col gap-3">
+        {order.status !== "pending" && (
           <Button
+            name="status"
             className="w-full justify-start gap-2"
+            value={"shippped"}
             disabled={
-              order.status === "shipped" || order.status === "delivered"
+              order.status === "shipped" ||
+              order.status === "delivered" ||
+              isPending
             }
-            onClick={() => {
-              setStatus("shipped");
-            }}
           >
-            <Truck className="h-4 w-4" /> Mark as Shipped
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Truck className="h-4 w-4" />
+            )}
+            Mark as Shipped
           </Button>
-        </form>
-      )}
-      {order.status !== "pending" && (
-        <form action={formAction}>
+        )}
+
+        {order.status !== "pending" && (
           <Button
+            name="status"
             variant={"outline"}
+            value={"delivered"}
             className="w-full justify-start gap-2"
-            disabled={order.status === "delivered"}
-            onClick={() => {
-              setStatus("delivered");
-            }}
+            disabled={order.status === "delivered" || isPending}
           >
-            <CheckCircle className="h-4 w-4" /> Mark as Delivered
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="h-4 w-4" />
+            )}
+            Mark as Delivered
           </Button>
-        </form>
-      )}
-      {order.status === "pending" && (
-        <form action={formAction}>
+        )}
+
+        {order.status === "pending" && (
           <Button
+            name="status"
+            value={"paid"}
             variant={"outline"}
             className="w-full justify-start gap-2"
             disabled={order.status === "paid"}
-            onClick={() => {
-              setStatus("paid");
-            }}
           >
-            <CheckCircle className="h-4 w-4" /> Mark as Paid
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="h-4 w-4" />
+            )}{" "}
+            Mark as Paid
           </Button>
-        </form>
-      )}
-    </>
+        )}
+      </form>
+    </div>
   );
 }
 
