@@ -11,6 +11,7 @@ import {
 import { AppSidebar } from "@/components/app-sidebar";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import { Toaster } from "@workspace/ui/components/sonner";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -51,7 +52,11 @@ export default function RootLayout({
                 <h1 className="text-sm font-medium">Dashboard Overview</h1>
               </header>
               <div className="flex-1 space-y-4 p-4 pt-6">
-                <Providers>{children}</Providers>
+                <Providers>
+                  {children}
+
+                  <Toaster />
+                </Providers>
               </div>
             </SidebarInset>
           </SidebarProvider>
