@@ -22,12 +22,13 @@ function ManagementForm({ order }: any) {
 
   return (
     <>
-      {state.message ? (
+      {state.message && (
         <Alert className="bg-green-100 text-green-800 border border-green-900">
           <CheckCircle2Icon />
           <AlertTitle>{state.message}</AlertTitle>
         </Alert>
-      ) : (
+      )}{" "}
+      {state.error && (
         <Alert variant={"destructive"} className="bg-red-100">
           <CheckCircle2Icon />
           <AlertTitle>{state.error}</AlertTitle>
@@ -48,7 +49,6 @@ function ManagementForm({ order }: any) {
           </Button>
         </form>
       )}
-
       {order.status !== "pending" && (
         <form action={formAction}>
           <Button
