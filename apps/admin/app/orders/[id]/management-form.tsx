@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { FormState, updateOrderStatus } from "../actions";
 import { Button } from "@workspace/ui/components/button";
-import { CheckCircle, Truck } from "lucide-react";
+import { CheckCircle, CheckCircle2Icon, Truck } from "lucide-react";
+import { toast } from "sonner";
+import { Alert, AlertTitle } from "@workspace/ui/components/alert";
 
 const initialState: FormState = {
   success: false,
@@ -12,54 +14,69 @@ const initialState: FormState = {
 };
 
 function ManagementForm({ order }: any) {
-  const [state1, formAction1, isPending1] = useActionState(
-    updateOrderStatus.bind(null, order.id, "shipped"),
+  const [status, setStatus] = useState("");
+  const [state, formAction, isPending] = useActionState(
+    updateOrderStatus.bind(null, order.id, status),
     initialState
   );
-  const [state2, formAction2, isPending2] = useActionState(
-    updateOrderStatus.bind(null, order.id, "delivered"),
-    initialState
-  );
+
   return (
     <>
-      {state1.success && (
-        <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm border border-green-200">
-          {state1.message}
-        </div>
+      {state.message ? (
+        <Alert className="bg-green-100 text-green-800 border border-green-900">
+          <CheckCircle2Icon />
+          <AlertTitle>{state.message}</AlertTitle>
+        </Alert>
+      ) : (
+        <Alert variant={"destructive"} className="bg-red-100">
+          <CheckCircle2Icon />
+          <AlertTitle>{state.error}</AlertTitle>
+        </Alert>
       )}
-      {state1.error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm border border-red-200">
-          {state1.error}
-        </div>
+      {order.status !== "pending" && (
+        <form action={formAction}>
+          <Button
+            className="w-full justify-start gap-2"
+            disabled={
+              order.status === "shipped" || order.status === "delivered"
+            }
+            onClick={() => {
+              setStatus("shipped");
+            }}
+          >
+            <Truck className="h-4 w-4" /> Mark as Shipped
+          </Button>
+        </form>
       )}
-      <form action={formAction1}>
-        <Button
-          className="w-full justify-start gap-2"
-          disabled={order.status === "shipped" || order.status === "delivered"}
-        >
-          <Truck className="h-4 w-4" /> Mark as Shipped
-        </Button>
-      </form>
 
-      {state2.success && (
-        <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm border border-green-200">
-          {state2.message}
-        </div>
+      {order.status !== "pending" && (
+        <form action={formAction}>
+          <Button
+            variant={"outline"}
+            className="w-full justify-start gap-2"
+            disabled={order.status === "delivered"}
+            onClick={() => {
+              setStatus("delivered");
+            }}
+          >
+            <CheckCircle className="h-4 w-4" /> Mark as Delivered
+          </Button>
+        </form>
       )}
-      {state2.error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm border border-red-200">
-          {state2.error}
-        </div>
+      {order.status === "pending" && (
+        <form action={formAction}>
+          <Button
+            variant={"outline"}
+            className="w-full justify-start gap-2"
+            disabled={order.status === "paid"}
+            onClick={() => {
+              setStatus("paid");
+            }}
+          >
+            <CheckCircle className="h-4 w-4" /> Mark as Paid
+          </Button>
+        </form>
       )}
-      <form action={formAction2}>
-        <Button
-          variant={"outline"}
-          className="w-full justify-start gap-2"
-          disabled={order.status === "delivered"}
-        >
-          <CheckCircle className="h-4 w-4" /> Mark as Delivered
-        </Button>
-      </form>
     </>
   );
 }

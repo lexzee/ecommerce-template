@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { success } from "zod";
 
 export type FormState = {
   error: string | null;
