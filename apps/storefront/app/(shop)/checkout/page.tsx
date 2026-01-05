@@ -28,7 +28,9 @@ export default async function ChekoutPage() {
 
   return (
     <Suspense
-      fallback={<div className="p-10 text-center">Loading checkout...</div>}
+      fallback={
+        <div className="p-4 sm:p-10 text-center">Loading checkout...</div>
+      }
     >
       <CheckoutContent user={user} savedAddress={userDetails} />
     </Suspense>

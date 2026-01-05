@@ -200,8 +200,8 @@ export function ProductForm({ initialData }: ProductFormProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <ArrowLeft size={30} onClick={() => router.back()} />
-        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+        <ArrowLeft size={20} onClick={() => router.back()} />
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
       </div>
 
       <form

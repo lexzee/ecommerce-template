@@ -65,7 +65,7 @@ export default async function CustomerDetailPage({ params }: PageProps) {
   const address = customer.delivery_address as any;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="flex-1 space-y-4 p-2 sm:p-8 pt-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/customers">
