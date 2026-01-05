@@ -18,13 +18,13 @@ const projectId = url.split("//")[1].split(".")[0];
 const cookieName = `sb-${projectId}-auth-token`;
 
 export async function updateSession(request: NextRequest) {
-  console.log("Starting Supabase Proxy");
+  // console.log("Starting Supabase Proxy");
   let supabaseResponse = NextResponse.next({
     request,
   });
 
   if (!url || !key) {
-    console.error("❌ FATAL ERROR: Supabase Keys are MISSING!");
+    // console.error("❌ FATAL ERROR: Supabase Keys are MISSING!");
     return supabaseResponse; // Stop here to prevent crash
   }
 
@@ -32,17 +32,17 @@ export async function updateSession(request: NextRequest) {
   // variable. Always create a new one on each request.
   let user = null;
 
-  console.log("Creating server client...");
+  // console.log("Creating server client...");
 
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
-        console.log("Getting cookies...");
+        // console.log("Getting cookies...");
 
         return request.cookies.getAll();
       },
       setAll(cookiesToSet: cookiesProps[]) {
-        console.log("Setting Cookies", cookiesToSet.length);
+        // console.log("Setting Cookies", cookiesToSet.length);
 
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value)
@@ -72,12 +72,12 @@ export async function updateSession(request: NextRequest) {
   // const { data } = await supabase.auth.getClaims();
   // const user = data?.claims;
 
-  console.log("Refreshing session...");
+  // console.log("Refreshing session...");
 
   const tokenCookie = request.cookies.get(cookieName);
 
   if (tokenCookie) {
-    console.log("Found raw cookie manually:", cookieName);
+    // console.log("Found raw cookie manually:", cookieName);
     try {
       const session = JSON.parse(tokenCookie.value);
       const { data: sessionData, error: sessionError } =
@@ -87,26 +87,26 @@ export async function updateSession(request: NextRequest) {
         });
 
       if (sessionError) {
-        console.error("Manual session set failed:", sessionError.message);
+        // console.error("Manual session set failed:", sessionError.message);
       } else {
-        console.log("✅ Manual session set successfully");
+        // console.log("✅ Manual session set successfully");
         user = sessionData.user;
       }
     } catch (e) {
-      console.error("Manual parse failed:", e);
+      // console.error("Manual parse failed:", e);
     }
   }
 
   try {
     if (!user) {
-      console.log("⚠️ No auth cookie found manually: Trying automatic!");
+      // console.log("⚠️ No auth cookie found manually: Trying automatic!");
       const { data: getUserData, error } = await supabase.auth.getUser();
       user = getUserData.user;
 
       if (error) {
-        console.error("⚠️ Auth Error:", error.message);
+        // console.error("⚠️ Auth Error:", error.message);
       } else {
-        console.log("✅ User found:", user);
+        // console.log("✅ User found:", user);
       }
     }
 
@@ -134,7 +134,7 @@ export async function updateSession(request: NextRequest) {
           .single();
 
         if (!profile || profile.is_role !== true) {
-          console.warn(`⛔ Access Denied: User ${user.email} is not an admin.`);
+          // console.warn(`⛔ Access Denied: User ${user.email} is not an admin.`);
           const url = request.nextUrl.clone();
           url.pathname = "/unauthorized";
           return NextResponse.redirect(url);
@@ -142,7 +142,7 @@ export async function updateSession(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.error("❌ CRITICAL CRASH in getUser:", error);
+    // console.error("❌ CRITICAL CRASH in getUser:", error);
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

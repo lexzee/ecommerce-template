@@ -52,7 +52,8 @@ export function CheckoutContent({
 
   const items: CartItem[] = retryOrderId ? retryOrder?.items || [] : cart.items;
   const subtotal = retryOrderId ? retryOrder?.total_amount : cart.total();
-  const taxEstimate = subtotal * 0.075;
+  // const taxEstimate = subtotal * 0.075;
+  const taxEstimate = 0;
   const total = retryOrderId
     ? retryOrder?.total_amount
     : subtotal + taxEstimate;
@@ -77,7 +78,6 @@ export function CheckoutContent({
           throw new Error(orderRes?.error || "Order Creation failed");
         }
         activeOrderId = orderRes.orderId;
-        cart.clearCart();
       }
 
       if (paymentMethod === "paystack") {
@@ -87,13 +87,14 @@ export function CheckoutContent({
         } else {
           throw new Error(paymentRes?.error || "Paystack init failed");
         }
+        cart.clearCart();
       } else if (paymentMethod === "whatsapp") {
         const adminNumber = siteConfig.phone;
-        const message = `Hello, I just placed Order #${activeOrderId?.slice(0, 8)}, I want to pay NGN${total.toLocaleString()} via Bank Transfer directly.`;
+        const message = `Hello, I just placed Order #${activeOrderId?.slice(0, 8)}. \nI want to pay NGN${total.toLocaleString()} via Bank Transfer directly.`;
         const waUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
 
         window.open(waUrl, "_blank");
-
+        cart.clearCart();
         router.push(`/orders/${activeOrderId}/receipt`);
       }
     } catch (e: any) {

@@ -41,7 +41,8 @@ export default function CartPage() {
 
   const subtotal = cart.total();
   // Placeholder for tax
-  const estimatedTax = subtotal * 0.075; // 7.5% VAT standard
+  // const estimatedTax = subtotal * 0.075; // 7.5% VAT standard
+  const estimatedTax = 0; // 7.5% VAT standard
   const total = subtotal + estimatedTax;
 
   return (

@@ -20,4 +20,5 @@ export const siteConfig = {
     email: "support@scentsbynurryo.com",
   },
   phone: "2347068577887",
+  tax: 0,
 };

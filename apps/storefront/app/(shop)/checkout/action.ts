@@ -1,4 +1,5 @@
 "use server";
+import { siteConfig } from "@/config/site";
 import { getUserManually } from "@/lib/supabase/proxy";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@repo/database";
@@ -36,7 +37,7 @@ export async function placeOrder(
 
   if (!cartItems || cartItems.length === 0) return { error: "Cart is empty" };
 
-  const vat = total * 0.075;
+  const vat = total * siteConfig.tax;
 
   const { data: order, error: orderError } = await supabase
     .from("orders")

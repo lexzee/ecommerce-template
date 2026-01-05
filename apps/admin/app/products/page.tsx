@@ -51,7 +51,7 @@ export default async function ProductsPage({
 
       {/* Toolbar */}
       <div className="flex items-center justify-between">
-        <SearchInput />
+        <SearchInput placeholder="Search products..." />
       </div>
 
       {/* Table */}

@@ -160,6 +160,11 @@ begin
 end;
 $$;
 
+Create virtual text_id column for orders
+
+create or replace function text_id(orders) returns text as $$
+  select $1.id::text;
+$$ language sql immutable;
 
 
 
@@ -305,6 +310,11 @@ create policy "Users can insert their own order items"
   on order_items for insert 
   with check ( exists ( select 1 from orders where orders.id = order_items.order_id and orders.user_id = auth.uid() ) );
 
+-- Adding a Trigam Index for fast search
+create extension if not exists pg_trgm;
+create index orders_id_text_search_idx 
+  on orders 
+  using gin ((id::text) gin_trgm_ops);
 
 
 
