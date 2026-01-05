@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
+import { sendReceiptEmail } from "../action";
 
 export default async function SuccessPage({
   searchParams,
@@ -8,6 +9,7 @@ export default async function SuccessPage({
   searchParams: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await searchParams;
+  await sendReceiptEmail(orderId);
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
       <div className="h-20 w-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">

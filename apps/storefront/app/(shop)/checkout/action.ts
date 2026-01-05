@@ -194,7 +194,7 @@ export async function sendReceiptEmail(orderId: string) {
 
   try {
     await transporter.sendMail({
-      from: "Scents by NurryO <receipts@resend.dev>",
+      from: "Scents by NurryO <developerlexzee@gmail.com>",
       to: order.profiles.email,
       subject: `Payment Receipt: Order #${order.id.slice(0, 8)}`,
       html: emailHtml,

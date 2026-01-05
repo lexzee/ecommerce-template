@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { sendReceiptEmail } from "../action";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -34,8 +33,6 @@ export async function GET(request: NextRequest) {
 
     if (error) console.error("Failed to update order status:", error);
 
-    // @ts-ignore
-    await sendReceiptEmail(order.id);
     return NextResponse.redirect(
       new URL(`/checkout/success?orderId=${reference}`, request.url)
     );
