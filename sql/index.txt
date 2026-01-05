@@ -342,3 +342,45 @@ create policy "Users can insert their own reviews"
 
 -- Optional: Prevent duplicate reviews (One review per product per user)
 create unique index idx_unique_review on public.reviews (user_id, product_id);
+
+
+
+
+Audit Logs
+
+create table if not exists public.audit_logs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles on delete set null,
+  action text not null,        -- e.g. "ORDER_UPDATE", "PRODUCT_CREATE"
+  resource_id text,            -- e.g. order_id or product_id
+  details jsonb,               -- e.g. { "old_status": "pending", "new_status": "paid" }
+  ip_address text,
+  created_at timestamp with time zone default now()
+);
+
+-- RLS: Only Admins can view logs
+alter table public.audit_logs enable row level security;
+
+create policy "Admins can view audit logs"
+  on public.audit_logs
+  for select
+  using (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+      and profiles.is_role = true
+    )
+  );
+
+-- Only Server Actions (Service Role) should insert, 
+-- but if we use client auth, allow admins to insert:
+create policy "Admins can insert audit logs"
+  on public.audit_logs
+  for insert
+  with check (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+      and profiles.is_role = true
+    )
+  );

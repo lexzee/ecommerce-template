@@ -9,7 +9,14 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@workspace/ui/components/sidebar";
-import { Home, Inbox, Settings, ShoppingBag, Users } from "lucide-react";
+import {
+  BookText,
+  Home,
+  Inbox,
+  Settings,
+  ShoppingBag,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 
 // Menu Items
@@ -19,6 +26,7 @@ const items = [
   { title: "Orders", url: "/orders", icon: Inbox },
   { title: "Customers", url: "/customers", icon: Users },
   { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Activity Log", url: "/settings/activity", icon: BookText },
 ];
 
 export function AppSidebar() {

@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/audit";
 import { GoogleGenAI } from "@google/genai";
 import { createTypedClient } from "@repo/database";
 import { NextResponse } from "next/server";
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
       throw new Error("Failed to generate embedding");
     }
 
-    const { error } = await supabase.from("product_embeddings").insert({
+    const { error } = await supabase.from("product_embeddings").upsert({
       id: id,
       embedding: JSON.stringify(embedding),
     });
@@ -51,6 +52,8 @@ export async function POST(req: Request) {
       console.error("Supabase Error: ", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    await logActivity("UPSERT_EMBEDDING", id, { for: name });
 
     return NextResponse.json({ sucess: true }, { status: 200 });
   } catch (e) {
