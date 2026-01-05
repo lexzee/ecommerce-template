@@ -44,7 +44,7 @@ export function MenuDropDown() {
               size={"sm"}
               onClick={() => signout().then()}
               className="p-1"
-              disabled
+              // disabled
             >
               Log out
             </Button>

@@ -1,8 +1,21 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@workspace/ui/components/button";
 import { ShieldAlert } from "lucide-react";
+import { useEffect, useState } from "react";
+import { signout } from "../(auth)/action";
 
 export default function UnauthorizedPage() {
+  const [logout, setLogout] = useState(false);
+  useEffect(() => {
+    async function LogOut() {
+      await signout();
+    }
+
+    if (logout) {
+      LogOut();
+    }
+  }, [logout]);
   return (
     <div className="fixed top-0 left-0 h-screen w-full flex flex-col items-center justify-center bg-background gap-4 p-4">
       <div className="bg-accent p-8 rounded-lg shadow-sm border text-center max-w-md">
@@ -17,9 +30,11 @@ export default function UnauthorizedPage() {
           restricted to administrators only.
         </p>
         <div className="flex gap-4 justify-center">
-          <form action="/auth/signout" method="post">
-            <Button variant="destructive">Sign Out</Button>
-          </form>
+          {/* <form action="/auth/signout" method="post"> */}
+          <Button variant="destructive" onClick={() => setLogout(true)}>
+            Sign Out
+          </Button>
+          {/* </form> */}
           {/* Link back to the main storefront if you have the URL, or just Login */}
           <Link href="/login">
             <Button>Go to Login</Button>

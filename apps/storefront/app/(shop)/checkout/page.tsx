@@ -2,8 +2,8 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { getJwt } from "@/lib/helpers";
 import { CheckoutContent } from "./checkout_content";
+import { getJwt } from "@/lib/helper-server";
 
 export default async function ChekoutPage() {
   const jwt = await getJwt();

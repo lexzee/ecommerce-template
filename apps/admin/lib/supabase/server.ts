@@ -1,9 +1,11 @@
 import { CookieOptions, createServerClient } from "@supabase/ssr";
+import { createClient as createClientA } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
-const [url, key] = [
+const [url, key, skey] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 ];
 
 interface cookiesProps {
@@ -47,6 +49,15 @@ export async function createClient() {
           // user sessions.
         }
       },
+    },
+  });
+}
+
+export async function createAdminClient() {
+  return createClientA(url, skey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
   });
 }

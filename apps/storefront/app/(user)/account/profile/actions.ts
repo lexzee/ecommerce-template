@@ -1,10 +1,10 @@
 "use server";
 
 import { FormValues } from "@/components/accounts/profile_form";
+import { getJwt } from "@/lib/helper-server";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getJwt } from "@/lib/helpers";
 
 export async function updateProfile(values: FormValues) {
   const supabase = await createClient();

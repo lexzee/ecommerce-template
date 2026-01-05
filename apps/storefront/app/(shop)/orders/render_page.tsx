@@ -1,7 +1,6 @@
 import { formatCurrency, getStatusColor } from "@/lib/helpers";
 import { getUserManually } from "@/lib/supabase/proxy";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@workspace/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,

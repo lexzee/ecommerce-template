@@ -18,6 +18,7 @@
     "@react-email/tailwind": "^2.0.3",
     "@repo/database": "workspace:^",
     "@supabase/ssr": "^0.1.0",
+    "@supabase/supabase-js": "^2.39.0",
     "@types/nodemailer": "^7.0.4",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^0.475.0",
