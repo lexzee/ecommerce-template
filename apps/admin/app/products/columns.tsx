@@ -1,4 +1,5 @@
 "use client";
+import { logActivity } from "@/lib/audit";
 import { createClient } from "@/lib/supabase/client";
 import { type Database } from "@repo/database";
 import { ColumnDef } from "@tanstack/react-table";
@@ -110,6 +111,9 @@ export const columns: ColumnDef<Product>[] = [
           toast.error("Failed to delete");
           console.error("Failed to delete");
         } else {
+          await logActivity("PRODUCT_DELETION", product.id, {
+            deleted: product.name,
+          });
           toast.success("Product deleted");
           console.log("Product deleted");
           router.refresh();

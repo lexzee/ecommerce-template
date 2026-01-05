@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce"; // or just standard timeout
 import { useEffect, useState } from "react";
 
-export function SearchInput() {
+export function SearchInput({ placeholder }: { placeholder?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [text, setText] = useState(searchParams.get("q") || "");
@@ -19,11 +19,11 @@ export function SearchInput() {
       params.delete("q");
     }
     router.push(`?${params.toString()}`);
-  }, [query, router, searchParams]);
+  }, [query]);
 
   return (
     <Input
-      placeholder="Search products..."
+      placeholder={placeholder}
       value={text}
       onChange={(e) => setText(e.target.value)}
       className="max-w-sm"

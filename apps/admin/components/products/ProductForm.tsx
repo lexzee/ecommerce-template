@@ -2,6 +2,7 @@
 
 import { Product } from "@/app/products/columns";
 import { NICHE_CATEGORIES } from "@/config/niche-fields";
+import { logActivity } from "@/lib/audit";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTypedClient } from "@repo/database";
 import { Button } from "@workspace/ui/components/button";
@@ -100,6 +101,10 @@ export function ProductForm({ initialData }: ProductFormProps) {
           .eq("id", initialData.id);
 
         if (error) throw error;
+
+        await logActivity("PRODUCT_UPDATE", productId, {
+          added: initialData.name,
+        });
         toast.success("Product updated");
       } else {
         const { data: productData, error } = await supabase
@@ -121,7 +126,11 @@ export function ProductForm({ initialData }: ProductFormProps) {
           .single();
 
         if (error) throw error;
+
         productId = productData.id;
+        await logActivity("PRODUCT_ADDITION", productId, {
+          added: productData.name,
+        });
         toast.success("Product created");
       }
 
@@ -191,8 +200,8 @@ export function ProductForm({ initialData }: ProductFormProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <ArrowLeft size={30} onClick={() => router.back()} />
-        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+        <ArrowLeft size={20} onClick={() => router.back()} />
+        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
       </div>
 
       <form

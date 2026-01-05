@@ -1,10 +1,14 @@
 "use server";
+import { siteConfig } from "@/config/site";
 import { getUserManually } from "@/lib/supabase/proxy";
 import { createClient } from "@/lib/supabase/server";
+import { render } from "@react-email/components";
 import { createAdminClient } from "@repo/database";
 import { error } from "console";
 import { revalidatePath } from "next/cache";
+import ReceiptEmail from "@workspace/ui/components/receipt-email";
 import { redirect } from "next/navigation";
+import { transporter } from "@/lib/helpers";
 
 const [url, key, adminKey] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,7 +40,7 @@ export async function placeOrder(
 
   if (!cartItems || cartItems.length === 0) return { error: "Cart is empty" };
 
-  const vat = total * 0.075;
+  const vat = total * siteConfig.tax;
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -120,7 +124,6 @@ export async function initiatePayment(orderId: string, user: any) {
           "Payment initialization failed",
       };
     }
-
     return { url: data.data.authorization_url };
   } catch (e) {
     console.error("Payment Action Crash:", e);
@@ -153,4 +156,50 @@ export async function getPendingOrder(orderId: string) {
   }
 
   return { order };
+}
+
+export async function sendReceiptEmail(orderId: string) {
+  const supabase = await createClient();
+
+  // 1. Fetch Order
+  const { data: order } = await supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      items:order_items (
+        id, quantity, unit_price,
+        products (name)
+      ),
+      profiles:user_id ( email, full_name )
+    `
+    )
+    .eq("id", orderId)
+    .single();
+
+  if (!order || !order.profiles?.email) return;
+
+  // 2. Send Email
+  const emailHtml = await render(
+    ReceiptEmail({
+      orderId: order.id,
+      date: new Date(order.created_at).toLocaleDateString(),
+      customerName: order.profiles.full_name || "Valued Customer",
+      customerEmail: order.profiles.email,
+      shippingAddress: order.shipping_address,
+      items: order.items,
+      totalAmount: order.total_amount,
+    })
+  );
+
+  try {
+    await transporter.sendMail({
+      from: "Scents by NurryO <receipts@resend.dev>",
+      to: order.profiles.email,
+      subject: `Payment Receipt: Order #${order.id.slice(0, 8)}`,
+      html: emailHtml,
+    });
+  } catch (error) {
+    console.error("Email sending failed:", error);
+  }
 }

@@ -84,7 +84,7 @@ export async function ReceiptDetails({ id }: { id: string }) {
         <TableHeader>
           {/* <TableRow className="border-b border-black text-left text-black"> */}
           <TableRow>
-            <TableHead className="w-1/2 text-black">Item</TableHead>
+            <TableHead className="w-1/3 text-black">Item</TableHead>
             <TableHead className=" text-center text-black">Qty</TableHead>
             <TableHead className=" text-right text-black">Price</TableHead>
             <TableHead className=" text-right text-black">Total</TableHead>

@@ -43,7 +43,7 @@ export default async function OrderDetailsPage({
   if (!order) notFound();
 
   return (
-    <div className="space-y-6 p-8 max-w-5xl mx-auto">
+    <div className="space-y-6 p-2 sm:p-8 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/orders">
