@@ -1,6 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { getJwt } from "@/lib/server_helpers";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -73,7 +75,9 @@ export async function signup(formData: FormData) {
 }
 
 export async function signout() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/");
+  const jwt = await getJwt();
+  const supabase = await createAdminClient();
+  await supabase.auth.admin.signOut(jwt);
+  revalidatePath("/");
+  redirect("/login");
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@repo/database";
+import { sendEmailReceipt } from "@/lib/email_service";
 
 const [url, key] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,6 +47,25 @@ export async function POST(request: NextRequest) {
       }
 
       console.log(`✅ Order ${reference} confirmed via Webhook`);
+
+      const { data: fullOrder } = await supabaseAdmin
+        .from("orders")
+        .select(
+          `
+           *,
+           items:order_items (
+             quantity, unit_price,
+             products (name) 
+           ),
+           profiles:user_id (email, full_name)
+        `
+        )
+        .eq("id", reference)
+        .single();
+
+      if (fullOrder) {
+        await sendEmailReceipt(fullOrder);
+      }
     }
 
     return NextResponse.json({ received: true });

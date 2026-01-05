@@ -2,13 +2,10 @@
 import { CartItem, useCart } from "@/lib/cart_store";
 import { initiatePayment, placeOrder, getPendingOrder } from "./action";
 import { Label } from "@workspace/ui/components/label";
-import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
-import { useFormStatus } from "react-dom";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { siteConfig } from "@/config/site";
-import { formatCurrency } from "@/lib/helpers";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CreditCard, MapPin, MessageCircle, Pencil, Phone } from "lucide-react";

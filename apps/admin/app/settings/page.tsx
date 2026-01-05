@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { ProfileForm } from "./profile_form";
+import { PasswordForm } from "./password_form";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -43,6 +44,22 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <ProfileForm user={user} profile={profile} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Column: Security (Password) */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Change Password</CardTitle>
+            <CardDescription>
+              Ensure your account is using a long, random password to stay
+              secure.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PasswordForm />
           </CardContent>
         </Card>
       </div>

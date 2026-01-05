@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
@@ -10,8 +10,10 @@ import {
 } from "@workspace/ui/components/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { Toaster } from "@workspace/ui/components/sonner";
+import { createAdminClient } from "@/lib/supabase/server";
+import { getJwt } from "@/lib/server_helpers";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -23,18 +25,16 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createClient();
-
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-  }, [typeof document !== "undefined" ? document.cookie : ""]);
+  const supabase = await createAdminClient();
+  const jwt = await getJwt();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(jwt);
 
   return (
     <html lang="en" suppressHydrationWarning>

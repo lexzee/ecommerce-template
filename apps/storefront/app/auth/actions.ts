@@ -1,6 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { getJwt } from "@/lib/helper-server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -73,18 +75,9 @@ export async function signup(formData: FormData) {
 }
 
 export async function signout() {
-  const supabase = await createClient();
-  const cookieStore = await cookies();
-
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error("Error signing out:", error.message);
-    return;
-  } else {
-    const cookieName = getSupabseCookieName();
-    cookieStore.delete({ name: cookieName });
-    console.log("Signout successful");
-  }
-
+  const jwt = await getJwt();
+  const supabase = await createAdminClient();
+  await supabase.auth.admin.signOut(jwt);
+  revalidatePath("/");
   redirect("/");
 }
