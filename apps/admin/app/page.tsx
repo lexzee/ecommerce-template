@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Activity, DollarSign, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 
 const [url, key] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,11 +26,23 @@ export default async function Page() {
 
   const totalRevenue =
     orders?.reduce(
-      (acc, order) => acc + (order.status === "paid" ? order.total_amount : 0),
+      (acc, order) =>
+        acc +
+        (order.status === "paid" ||
+        order.status === "shipped" ||
+        order.status === "delivered"
+          ? order.total_amount
+          : 0),
       0
     ) || 0;
   const totalOrders = orders?.length || 0;
-  const paidOrders = orders?.filter((o) => o.status === "paid").length || 0;
+  const paidOrders =
+    orders?.filter(
+      (o) =>
+        o.status === "paid" ||
+        o.status === "shipped" ||
+        o.status === "delivered"
+    ).length || 0;
 
   const recentOrders = orders?.slice(0, 5) || [];
 
@@ -88,21 +101,23 @@ export default async function Page() {
           <CardContent>
             <div className="space-y-8">
               {recentOrders.map((order, i) => (
-                <div key={i} className="flex items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      Order #{order.id?.slice(0, 4) || "..."}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </p>
+                <Link key={i} href={`/orders/${order.id}`}>
+                  <div className="flex items-center">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        Order #{order.id?.slice(0, 4) || "..."}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div
+                      className={`ml-auto font-medium ${order.status === "paid" || order.status === "shipped" || order.status === "delivered" ? "text-green-600" : "text-yellow-600"}`}
+                    >
+                      +₦{order.total_amount?.toLocaleString()}
+                    </div>
                   </div>
-                  <div
-                    className={`ml-auto font-medium ${order.status === "paid" ? "text-green-600" : "text-yellow-600"}`}
-                  >
-                    +₦{order.total_amount?.toLocaleString()}
-                  </div>
-                </div>
+                </Link>
               ))}
               {recentOrders.length === 0 && (
                 <p className="text-muted-foreground">No orders yet.</p>

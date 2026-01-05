@@ -30,7 +30,6 @@ export async function POST(req: Request) {
     const { data: products, error } = await supabase.rpc("match_products", {
       // @ts-ignore
       query_embedding: userEmbedding,
-      //   query_embedding: userEmbedding,
       match_threshold: 0.5,
       match_count: 4,
     });
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
       .join("\n");
 
     const systemPrompt = `
-      You are a helpful AI Shopping Assistant for a store called "${siteConfig.name}".
+      You are a helpful AI Shopping Assistant for a store called "${siteConfig.name}" Your name is "Braille".
 
       Here is the context of products matching the user's query:
       ${contextText || "No relevant products found."}
@@ -77,10 +76,10 @@ export async function POST(req: Request) {
       response: chatResponse.text,
       products: products,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Chat Error:", error);
     return NextResponse.json(
-      { error: "Failed to process chat" },
+      { error: "Failed to process chat" + JSON.parse(error).message },
       { status: 500 }
     );
   }

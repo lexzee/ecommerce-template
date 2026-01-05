@@ -38,7 +38,7 @@ export function SiteHeader() {
   }, [typeof document !== "undefined" ? document.cookie : ""]);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full border-b bg-background lg:px-72">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0 mx-auto px-4">
         {/* Logo Section */}
         <div className="flex gap-6 md:gap-10">

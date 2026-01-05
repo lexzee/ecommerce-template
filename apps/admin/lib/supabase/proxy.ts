@@ -122,6 +122,25 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
       }
     }
+
+    // Admin Role Check
+    if (user) {
+      // Exclusion to prevent infinite loop
+      if (!request.nextUrl.pathname.startsWith("/unauthorized")) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_role")
+          .eq("id", user.id)
+          .single();
+
+        if (!profile || profile.is_role !== true) {
+          console.warn(`⛔ Access Denied: User ${user.email} is not an admin.`);
+          const url = request.nextUrl.clone();
+          url.pathname = "/unauthorized";
+          return NextResponse.redirect(url);
+        }
+      }
+    }
   } catch (error) {
     console.error("❌ CRITICAL CRASH in getUser:", error);
   }
