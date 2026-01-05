@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import nodemailer from "nodemailer";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-NG", {
@@ -42,11 +41,3 @@ export const getJwt = async () => {
 
   return "No cookie found";
 };
-
-export const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "developerlexzee@gmail.com",
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});

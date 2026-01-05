@@ -8,7 +8,7 @@ import { error } from "console";
 import { revalidatePath } from "next/cache";
 import ReceiptEmail from "@workspace/ui/components/receipt-email";
 import { redirect } from "next/navigation";
-import { transporter } from "@/lib/helpers";
+import { sendEmailReceipt } from "@/lib/email_service";
 
 const [url, key, adminKey] = [
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -179,26 +179,8 @@ export async function sendReceiptEmail(orderId: string) {
 
   if (!order || !order.profiles?.email) return;
 
-  // 2. Send Email
-  const emailHtml = await render(
-    ReceiptEmail({
-      orderId: order.id,
-      date: new Date(order.created_at).toLocaleDateString(),
-      customerName: order.profiles.full_name || "Valued Customer",
-      customerEmail: order.profiles.email,
-      shippingAddress: order.shipping_address,
-      items: order.items,
-      totalAmount: order.total_amount,
-    })
-  );
-
   try {
-    await transporter.sendMail({
-      from: "Scents by NurryO <developerlexzee@gmail.com>",
-      to: order.profiles.email,
-      subject: `Payment Receipt: Order #${order.id.slice(0, 8)}`,
-      html: emailHtml,
-    });
+    await sendEmailReceipt(order);
   } catch (error) {
     console.error("Email sending failed:", error);
   }
