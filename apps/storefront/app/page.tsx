@@ -6,6 +6,8 @@ import { SortSelect } from "@/components/sort_select";
 import { siteConfig } from "@/config/site";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = {
   sort?: string;
   q?: string;
