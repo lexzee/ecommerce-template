@@ -25,7 +25,7 @@ export function AddToCartButton({
   className,
 }: {
   product: ProductMinimal;
-  className: string;
+  className?: string;
 }) {
   const cart = useCart();
   const router = useRouter();
