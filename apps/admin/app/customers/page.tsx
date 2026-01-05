@@ -26,7 +26,12 @@ export default async function CustomersPage() {
 
   const customers: CustomerProfile[] = (rawData || []).map((profile: any) => {
     const validOrders =
-      profile.orders?.filter((o: any) => o.status === "paid") || [];
+      profile.orders?.filter(
+        (o: any) =>
+          o.status === "paid" ||
+          o.status === "shipped" ||
+          o.status === "delivered"
+      ) || [];
 
     return {
       id: profile.id,

@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { ArrowUpDown, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
 
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type CustomerProfile = {
@@ -26,21 +27,26 @@ export const columns: ColumnDef<CustomerProfile>[] = [
   {
     accessorKey: "full_name",
     header: "Customer",
-    cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="font-medium">
-          {row.getValue("full_name") || "No Name"}
-        </span>
-        {row.original.is_role && (
-          <Badge
-            variant={"outline"}
-            className="w-fit mt-1 text-[10px] bg-blue-50 text-blue-700 border-blue-200"
-          >
-            Admin / Staff
-          </Badge>
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const id = row.original.id as string;
+      return (
+        <Link href={`/customers/${id}`}>
+          <div className="flex flex-col">
+            <span className="font-medium">
+              {row.getValue("full_name") || "No Name"}
+            </span>
+            {row.original.is_role && (
+              <Badge
+                variant={"outline"}
+                className="w-fit mt-1 text-[10px] bg-blue-50 text-blue-700 border-blue-200"
+              >
+                Admin / Staff
+              </Badge>
+            )}
+          </div>
+        </Link>
+      );
+    },
   },
   {
     accessorKey: "email",
