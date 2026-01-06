@@ -45,7 +45,7 @@ export const ReceiptEmail = ({
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
             <Section className="mt-[32px]">
               <Text className="text-black text-[24px] font-bold text-center p-0 my-[30px] mx-0 uppercase tracking-widest">
-                SCENTS BY NURRYO
+                NOIRE ESSESENCE
               </Text>
               <Text className="text-black text-[14px] leading-[24px] text-center">
                 Thank you for your purchase!
@@ -64,7 +64,13 @@ export const ReceiptEmail = ({
                   <Text className="text-sm m-0 text-gray-500">
                     {customerEmail}
                   </Text>
+                  <Text>
+                    {shippingAddress.street!}, <br />
+                    {shippingAddress.city!}, {shippingAddress.state!}, <br />
+                    {shippingAddress.country!}
+                  </Text>
                 </Column>
+
                 <Column align="right">
                   <Text className="text-gray-500 text-xs uppercase font-bold">
                     Receipt
@@ -118,7 +124,7 @@ export const ReceiptEmail = ({
             <Section className="mt-8 text-center">
               <Text className="text-[12px] text-gray-500">
                 123 Commerce St, Lagos, Nigeria <br />
-                support@scentsbynurryo.com
+                nuriatabdulrahman580@gmail.com
               </Text>
             </Section>
           </Container>
