@@ -5,6 +5,7 @@ export const siteConfig = {
   description: "Your one-stop shop for all things fragrance.",
   niche: "perfume" as "perfume" | "toys" | "food",
   mainNav: [
+    { title: "", href: "" },
     // { title: "Home", href: "/" },
     // { title: "Catalog", href: "/catalog" },
   ],
