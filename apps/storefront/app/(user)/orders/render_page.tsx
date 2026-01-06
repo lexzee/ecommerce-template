@@ -10,7 +10,7 @@ import { Calendar, Clock, Package } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import React, { Suspense } from "react";
+import React from "react";
 
 async function RenderOrdersPage() {
   const supabase = await createClient();
@@ -60,8 +60,8 @@ async function RenderOrdersPage() {
   }
 
   return (
-    <div className="cotainer py-10 px-4 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Order History</h1>
+    <div className="cotainer max-w-5xl mx-auto">
+      <h1 className="text-xl font-semibold mb-4">Order History</h1>
 
       <div className="space-y-8">
         {orders.map((order: any) => (
@@ -70,10 +70,10 @@ async function RenderOrdersPage() {
             className="border rounded-lg overflow-hidden shadow-sm bg-card"
           >
             {/* Order Header */}
-            <CollapsibleTrigger className="w-full bg-muted/30 p-4 sm:p-6 flex flex-col sm:flex-row justify-between gap-4 border-b">
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="font-semibold text-lg">
+            <CollapsibleTrigger className="w-full bg-muted/30 p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-b">
+              <div className="text-left w-full">
+                <div className="flex w-full items-center justify-between gap-3 mb-1">
+                  <span className="font-semibold text-md lg:text-lg w-1/2">
                     Order #{order.id.slice(0, 8)}
                   </span>
                   <span
@@ -96,17 +96,21 @@ async function RenderOrdersPage() {
                   </div>
                 </div>
               </div>
-              <div className="text-left sm:text-right">
-                <div className="flex items-center gap-4">
+
+              <div className="text-left sm:text-right w-full">
+                <div className="flex items-center gap-4 w-full justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">
                       Total Amount
                     </p>
-                    <p className="text-xl font-bold">
+                    <p className="text-lg font-bold">
                       {formatCurrency(order.total_amount)}
                     </p>
                   </div>
-                  <Link href={`/orders/${order.id}/receipt`}>
+                  <Link
+                    href={`/orders/${order.id}/receipt`}
+                    className="border text-xs py-1.5 px-3.5 rounded-md font-semibold bg-accent-foreground text-black text-center"
+                  >
                     {/* <Button variant="outline" size="sm">
                       View Receipt
                     </Button> */}
@@ -137,10 +141,10 @@ async function RenderOrdersPage() {
                         <span>NaN</span>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 w-full">
                       <Link
                         href={`/product/${item.product?.slug}`}
-                        className="font-medium hover:underline truncate block"
+                        className="font-medium hover:underline block"
                       >
                         {item.product?.name}
                       </Link>
