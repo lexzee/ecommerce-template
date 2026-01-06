@@ -1,8 +1,10 @@
 "use server";
 
-import { getJwt } from "@/lib/server_helpers";
+import { FormValues } from "@/components/accounts/profile_form";
+import { getJwt } from "@/lib/helper-server";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { refresh, revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export type FormState = {
   success: boolean;
@@ -10,35 +12,36 @@ export type FormState = {
   error?: string | null;
 };
 
-export async function updateProfile(
-  prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
+export async function updateProfile(values: FormValues) {
   const supabase = await createClient();
+  const jwt = await getJwt();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(jwt);
 
-  const id = formData.get("id") as string;
-  const full_name = formData.get("full_name") as string;
-  const phone = formData.get("phone") as string;
+  if (!user) redirect("/login");
 
   const { error } = await supabase
     .from("profiles")
     .update({
-      full_name,
-      phone,
+      full_name: values.firstName + " " + values.secondName,
+      phone: values.phone,
+      delivery_address: values.address,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", user?.id);
 
   if (error) {
-    console.error("Profilt Update Error:", error);
-    return { error: "Failed to update profile", success: false, message: "" };
+    return {
+      success: false,
+      message: `Database update failed: ${error.message}`,
+    };
   }
 
-  revalidatePath("/settings");
+  revalidatePath("/account/profile");
   return {
     success: true,
     message: "Profile updated successfully!",
-    error: null,
   };
 }
 

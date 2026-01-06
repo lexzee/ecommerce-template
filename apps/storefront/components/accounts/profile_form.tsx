@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { updateProfile } from "@/app/(user)/account/profile/actions";
 import { useFormState, useFormStatus } from "react-dom"; // Next.js 14/15+ hook
 import { useEffect } from "react";
 // import { toast } from "sonner"; // Assuming you use Sonner or similar
@@ -25,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
+import { updateProfile } from "@/app/(user)/actions";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "Name must be at least two characters."),

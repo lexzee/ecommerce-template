@@ -1,6 +1,6 @@
 import { Button } from "@workspace/ui/components/button";
 import Link from "next/link";
-import { User, MapPin, Package, LogOut } from "lucide-react";
+import { User, MapPin, Package, LogOut, KeyRound } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getUserManually } from "@/lib/supabase/proxy";
 
@@ -13,9 +13,9 @@ export default async function AccountLayout({
   if (!user) redirect("/login");
 
   const navItems = [
-    { href: "/account/profile", label: "Profile", icon: User },
+    { href: "/profile", label: "Profile", icon: User },
     { href: "/orders", label: "Orders", icon: Package }, // Redirects to your existing orders page
-    // { href: "/account/addresses", label: "Addresses", icon: MapPin },
+    { href: "/password", label: "Change Password", icon: KeyRound },
   ];
 
   return (
@@ -34,7 +34,7 @@ export default async function AccountLayout({
             </Link>
           ))}
 
-          <form action="/auth/signout" method="post">
+          <form action="/api/signout" method="post">
             <Button
               variant="ghost"
               className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"

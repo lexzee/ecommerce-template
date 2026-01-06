@@ -32,22 +32,23 @@ export function MenuDropDown() {
           <DropdownMenuItem>
             {" "}
             <Link
-              href="/account/profile"
+              href="/profile"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Button
-              variant={"ghost"}
-              size={"sm"}
-              onClick={() => signout().then()}
-              className="p-1"
-              // disabled
-            >
-              Log out
-            </Button>
+            <form action="/api/signout" method="post">
+              <Button
+                variant={"ghost"}
+                size={"sm"}
+                className="p-1"
+                // disabled
+              >
+                Log out
+              </Button>
+            </form>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

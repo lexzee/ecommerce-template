@@ -10,6 +10,9 @@ import {
 } from "@workspace/ui/components/card";
 import { ProfileForm } from "./profile_form";
 import { PasswordForm } from "./password_form";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@workspace/ui/components/button";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -17,7 +20,14 @@ export default async function SettingsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return <div>Please log in</div>;
+  if (!user)
+    return (
+      <div className="w-full h-[90vh] flex items-center justify-center">
+        <Link href={"/login"}>
+          <Button variant={"outline"}>Go To Login</Button>
+        </Link>
+      </div>
+    );
 
   const { data: profile } = await supabase
     .from("profiles")

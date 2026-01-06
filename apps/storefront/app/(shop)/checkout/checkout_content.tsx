@@ -141,7 +141,7 @@ _I am ready to pay. Please confirm the delivery fee to ${deliveryCity} so I can 
           <section>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Shipping Details</h2>
-              <Link href="/account/profile">
+              <Link href="/profile">
                 <Button
                   variant="ghost"
                   size="sm"
