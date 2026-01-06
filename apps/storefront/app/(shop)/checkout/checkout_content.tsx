@@ -26,7 +26,7 @@ export function CheckoutContent({
   const router = useRouter();
   const retryOrderId = useSearchParams().get("retry");
 
-  const [paymentMethod, setPaymentMethod] = useState("paystack");
+  const [paymentMethod, setPaymentMethod] = useState("whatsapp");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,7 +87,24 @@ export function CheckoutContent({
         cart.clearCart();
       } else if (paymentMethod === "whatsapp") {
         const adminNumber = siteConfig.phone;
-        const message = `Hello, I just placed Order #${activeOrderId?.slice(0, 8)}. \nI want to pay NGN${total.toLocaleString()} via Bank Transfer directly.`;
+        const itemsList = items
+          .map(
+            (item) => `- ${item.quantity}x ${item.name || item.product?.name}`
+          )
+          .join("\n");
+        const deliveryState = defaultAddress?.state || "N/A";
+        const deliveryCity = defaultAddress?.city || "N/A";
+        const message = `*New Order: #${activeOrderId?.slice(0, 8)}*
+------------------
+*Customer:* ${defaultAddress?.fullName || "Guest"}
+*State:* ${deliveryCity}, ${deliveryState}
+*Total (Items):* ₦${total.toLocaleString()}
+
+*Items:*
+${itemsList}
+------------------
+_I am ready to pay. Please confirm the delivery fee to ${deliveryCity} so I can make the transfer._`;
+        // const message = `Hello, I just placed Order #${activeOrderId?.slice(0, 8)}. \nI want to pay NGN${total.toLocaleString()} via Bank Transfer directly.`;
         const waUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
 
         window.open(waUrl, "_blank");
@@ -170,7 +187,7 @@ export function CheckoutContent({
           <section>
             <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
             <RadioGroup
-              defaultValue="paystack"
+              defaultValue="whatsapp"
               onValueChange={setPaymentMethod}
               className="grid gap-4"
             >
@@ -180,6 +197,7 @@ export function CheckoutContent({
                   value="paystack"
                   id="paystack"
                   className="peer sr-only"
+                  disabled
                 />
                 <Label
                   htmlFor="paystack"

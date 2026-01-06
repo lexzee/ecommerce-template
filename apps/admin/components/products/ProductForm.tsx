@@ -63,7 +63,8 @@ export function ProductForm({ initialData }: ProductFormProps) {
   });
 
   // Render dynamic fields based on category
-  const selectedCategory = form.watch("category");
+  // const selectedCategory = form.watch("category");
+  const selectedCategory = "perfume";
   const dynamicFields =
     selectedCategory &&
     NICHE_CATEGORIES[selectedCategory as keyof typeof NICHE_CATEGORIES]
@@ -297,6 +298,8 @@ export function ProductForm({ initialData }: ProductFormProps) {
               id="category"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               {...form.register("category")}
+              value={"perfume"}
+              disabled
             >
               <option value="">Select a niche...</option>
               {Object.entries(NICHE_CATEGORIES).map(([key, value]) => (
