@@ -1,8 +1,8 @@
 "use client";
 
+import { updateProfile } from "@/app/(user)/actions";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
 import {
   Card,
   CardContent,
@@ -10,13 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { useFormState, useFormStatus } from "react-dom"; // Next.js 14/15+ hook
-import { useEffect } from "react";
-// import { toast } from "sonner"; // Assuming you use Sonner or similar
-
-import * as z from "zod";
-import { Resolver, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
 import {
   Select,
   SelectContent,
@@ -24,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
-import { updateProfile } from "@/app/(user)/actions";
+import { Loader2 } from "lucide-react";
+import { Resolver, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "Name must be at least two characters."),
@@ -54,37 +52,37 @@ interface ProfileFormProps {
   };
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : "Save Changes"}
-    </Button>
-  );
-}
-
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(profileSchema) as Resolver<FormValues>,
     defaultValues: {
-      firstName: initialData.fullName.split(" ")[0],
-      secondName: initialData.fullName.split(" ")[1],
-      phone: initialData.phone,
+      firstName: initialData.fullName.split(" ")[0] || "",
+      secondName: initialData.fullName.split(" ")[1] || "",
+      phone: initialData.phone || "",
       address: {
-        street: initialData.address?.street,
-        city: initialData.address?.city,
-        state: initialData.address?.state,
+        street: initialData.address?.street || "",
+        city: initialData.address?.city || "",
+        state: initialData.address?.state || "",
         country: initialData.address?.country || "Nigeria",
       },
     },
   });
 
-  const state = form.formState;
+  const { isSubmitting, errors } = form.formState;
 
   const onSubmit = async (values: FormValues) => {
-    console.log(values);
-    const { message } = await updateProfile(values);
-    console.log(message);
+    try {
+      const result = await updateProfile(values);
+
+      if (result.success) {
+        toast.success("Profile updated successfully");
+      } else {
+        toast.error(result.message || "Failed to update profile");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    }
   };
 
   return (
@@ -104,39 +102,42 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               id="email"
               value={initialData.email}
               disabled
-              className="bg-muted"
+              className="bg-muted text-muted-foreground"
             />
             <p className="text-[0.8rem] text-muted-foreground">
               Email cannot be changed.
             </p>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              defaultValue={form.getValues("firstName")}
-              {...form.register("firstName")}
-            />
-            {state.errors?.firstName && (
-              <p className="text-red-500 text-xs">Name is too short</p>
-            )}
-          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                placeholder="John"
+                {...form.register("firstName")}
+              />
+              {errors.firstName && (
+                <p className="text-destructive text-xs">
+                  {errors.firstName.message}
+                </p>
+              )}
+            </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="secondName">Last Name</Label>
-            <Input
-              id="secondName"
-              defaultValue={form.getValues("secondName")}
-              {...form.register("secondName")}
-            />
+            <div className="grid gap-2">
+              <Label htmlFor="secondName">Last Name</Label>
+              <Input
+                id="secondName"
+                placeholder="Doe"
+                {...form.register("secondName")}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
-              defaultValue={form.getValues("phone")}
               placeholder="+234..."
               {...form.register("phone")}
             />
@@ -144,7 +145,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         </CardContent>
       </Card>
 
-      {/* 2. Delivery Address (JSONB Fields) */}
+      {/* 2. Delivery Address */}
       <Card>
         <CardHeader>
           <CardTitle>Delivery Address</CardTitle>
@@ -157,12 +158,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             <Label htmlFor="street">Street Address</Label>
             <Input
               id="street"
-              defaultValue={initialData.address?.street || ""}
               placeholder="123 Lagos Way"
               {...form.register("address.street")}
             />
-            {state.errors?.address && (
-              <p className="text-red-500 text-xs">Address Error</p>
+            {errors.address?.street && (
+              <p className="text-destructive text-xs">
+                {errors.address.street.message}
+              </p>
             )}
           </div>
 
@@ -171,39 +173,48 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               <Label htmlFor="city">City</Label>
               <Input
                 id="city"
-                defaultValue={initialData.address?.city || ""}
                 placeholder="Ikeja"
                 {...form.register("address.city")}
               />
+              {errors.address?.city && (
+                <p className="text-destructive text-xs">
+                  {errors.address.city.message}
+                </p>
+              )}
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="state">State</Label>
               <Select
-                {...form.register("address.state")}
-                onValueChange={(e) => form.setValue("address.state", e)}
+                onValueChange={(value) => form.setValue("address.state", value)}
+                defaultValue={form.getValues("address.state")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={form.getValues("address.state") || "State"}
-                  />
+                  <SelectValue placeholder="Select State" />
                 </SelectTrigger>
-                <SelectContent
-                  id="state"
-                  defaultValue={form.getValues("address.state")}
-                >
+                <SelectContent>
                   <SelectItem value="Oyo">Oyo</SelectItem>
                   <SelectItem value="Ogun">Ogun</SelectItem>
                   <SelectItem value="Lagos">Lagos</SelectItem>
                   <SelectItem value="Abuja">Abuja</SelectItem>
+                  {/* Add more states as needed */}
                 </SelectContent>
               </Select>
+              {errors.address?.state && (
+                <p className="text-destructive text-xs">
+                  {errors.address.state.message}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
 
       <div className="flex justify-end">
-        <SubmitButton />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
     </form>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
 import {
   Carousel,
   CarouselApi,
@@ -19,13 +18,13 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images }: ProductGalleryProps) {
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setcurrent] = useState(0);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!api) return;
 
     api.on("select", () => {
-      setcurrent(api.selectedScrollSnap());
+      setCurrent(api.selectedScrollSnap());
     });
   }, [api]);
 
@@ -35,11 +34,12 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-muted-foreground">
-        No images
+      <div className="aspect-square bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+        No images available
       </div>
     );
   }
+
   return (
     <div className="w-full space-y-4">
       {/* Main Carousel */}
@@ -47,14 +47,14 @@ export function ProductGallery({ images }: ProductGalleryProps) {
         <CarouselContent>
           {images.map((src, index) => (
             <CarouselItem key={index}>
-              <div className="relative aspect-square overflow-hidden rounded-lg border bg-white">
+              <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-card">
                 <Image
                   src={src}
-                  alt={`Product Image ${index + 1}`}
-                  className="object-cover w-full h-full"
-                  width={100000}
-                  height={100000}
-                  loading="eager"
+                  alt={`Product View ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
             </CarouselItem>
@@ -70,27 +70,27 @@ export function ProductGallery({ images }: ProductGalleryProps) {
 
       {/* Thumbnail Strip */}
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {" "}
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {images.map((src, index) => (
-            <Button
+            <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative flex-shrink-0 w-15 h-15 rounded-md overflow-hidden border-2 transition-all",
+                "relative flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all cursor-pointer bg-muted",
                 current === index
-                  ? "border-black"
+                  ? "border-primary ring-2 ring-primary/20"
                   : "border-transparent opacity-70 hover:opacity-100"
               )}
+              aria-label={`View image ${index + 1}`}
             >
               <Image
                 src={src}
                 alt={`Thumbnail ${index + 1}`}
-                className="object-cover w-full h-full"
-                width={10000}
-                height={10000}
+                fill
+                className="object-cover"
+                sizes="100px"
               />
-            </Button>
+            </button>
           ))}
         </div>
       )}

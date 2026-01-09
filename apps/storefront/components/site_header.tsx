@@ -4,23 +4,21 @@ import { siteConfig } from "@/config/site";
 import { useCart } from "@/lib/cart_store";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@workspace/ui/components/button";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MenuDropDown } from "./site-header-dropdown";
 
 export function SiteHeader() {
   const [user, setUser] = useState<any>(null);
-
   const cart = useCart();
   const [isMounted, setIsMounted] = useState(false);
   const supabase = createClient();
 
-  // Prevent hydration error
+  // Prevent hydration error and fetch initial state
+
   useEffect(() => {
     setIsMounted(true);
-  }, []);
-  useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       cart.fetchCart();
@@ -37,17 +35,21 @@ export function SiteHeader() {
     // Use a safe read for document.cookie to avoid SSR issues
   }, [typeof document !== "undefined" ? document.cookie : ""]);
 
+  // Calculate total quantity of items, not just unique rows
+  const cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background lg:px-72">
-      <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0 mx-auto px-4">
-        {/* Logo Section */}
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-8">
+        {/* Logo & Nav */}
         <div className="flex gap-6 md:gap-10">
-          <Link href={"/"} className="flex items-center space-x-2">
-            <span className="inline-block font-bold text-xl">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="inline-block font-bold text-xl tracking-tight">
               {siteConfig.name}
             </span>
           </Link>
-          <nav className="hidden gap-6 md:flex">
+
+          <nav className="hidden md:flex gap-6">
             {siteConfig.mainNav.map(
               (item, index) =>
                 item.href && (
@@ -63,37 +65,40 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <span className="text-sm font-medium">
-                  Hi, {user.user_metadata.full_name || "User"}
-                </span>
-                <MenuDropDown />
-              </>
-            ) : (
-              // SignOut button or drop down comming up
-              <Link href={"/login"}>
-                <Button variant={"secondary"} size={"sm"}>
-                  Login
-                </Button>
-              </Link>
-            )}
-
-            {/* Cart Button */}
-            <Link href={"/cart"}>
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingBag className="h-5 w-5" />
-                {isMounted && cart.items.length > 0 && (
-                  <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-green-900 text-white text-[10px] flex items-center justify-center">
-                    {cart.items.length}
-                  </span>
-                )}
+        {/* Actions (Auth + Cart) */}
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-block text-sm font-medium text-muted-foreground">
+                Hi, {user.user_metadata.full_name?.split(" ")[0] || "User"}
+              </span>
+              <MenuDropDown />
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Login</span>
               </Button>
             </Link>
-          </nav>
+          )}
+
+          {/* Cart Button */}
+          <Link href="/cart">
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative h-9 w-9 rounded-full border-border"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              {isMounted && cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center ring-2 ring-background">
+                  {cartCount}
+                </span>
+              )}
+              <span className="sr-only">Cart</span>
+            </Button>
+          </Link>
         </div>
       </div>
     </header>

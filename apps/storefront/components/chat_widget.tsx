@@ -5,12 +5,23 @@ import { Input } from "@workspace/ui/components/input";
 import { cn } from "@workspace/ui/lib/utils";
 import { Bot, MessageCircle, Send, User, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { siteConfig } from "@/config/site";
+
+// Strict Types
+interface ChatProduct {
+  id: string;
+  name: string;
+  price: number;
+  slug: string;
+  images: string[] | null;
+}
 
 type Message = {
   role: "user" | "assistant";
   content: string;
-  products?: any[];
+  products?: ChatProduct[];
 };
 
 export function ChatWidget() {
@@ -29,12 +40,11 @@ export function ChatWidget() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  //   Auto-scroll to bottom
+  // Auto-scroll to bottom
   useEffect(() => {
     const timeout = setTimeout(() => {
       scrollToBottom();
     }, 100);
-
     return () => clearTimeout(timeout);
   }, [messages, isOpen]);
 
@@ -77,8 +87,16 @@ export function ChatWidget() {
     }
   };
 
+  // Helper to format currency
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat(siteConfig.billing.currency.locale, {
+      style: "currency",
+      currency: siteConfig.billing.currency.code,
+    }).format(price);
+  };
+
+  // Helper to render markdown-style links
   const renderContent = (text: string) => {
-    // Splits text by markdown links like [Title](url)
     const parts = text.split(/(\[.*?\]\(.*?\))/g);
     return parts.map((part, i) => {
       const match = part.match(/\[(.*?)\]\((.*?)\)/);
@@ -87,35 +105,46 @@ export function ChatWidget() {
           <Link
             key={i}
             href={match?.[2] || "/"}
-            className="text-blue-600 underline font-medium hover:text-blue-800"
+            className="text-primary underline underline-offset-4 font-medium hover:text-primary/80"
           >
             {match[1]}
           </Link>
         );
       }
-
       return part;
     });
   };
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Trigger Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-60 print:hidden"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-[60] print:hidden"
         size="icon"
+        aria-label="Toggle Chat"
       >
-        {isOpen ? <X /> : <MessageCircle />}
+        {isOpen ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <MessageCircle className="h-6 w-6" />
+        )}
       </Button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[90vw] md:w-[400px] h-[500px] bg-background border rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-24 right-4 w-[90vw] md:w-[400px] h-[500px] max-h-[80vh] bg-background border border-border rounded-xl shadow-2xl z-[50] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 fade-in-0 duration-200">
           {/* Header */}
-          <div className="p-4 border-b bg-muted/50 flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">AI Shopping Assistant</h3>
+          <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-2">
+            <div className="p-1.5 bg-primary/10 rounded-md">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm">Shopping Assistant</h3>
+              <p className="text-[10px] text-muted-foreground">
+                Ask me anything about our products
+              </p>
+            </div>
           </div>
 
           {/* Messages Area */}
@@ -128,12 +157,13 @@ export function ChatWidget() {
                   m.role === "user" ? "flex-row-reverse" : "flex-row"
                 )}
               >
+                {/* Avatar */}
                 <div
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border",
                     m.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-muted-foreground border-border"
                   )}
                 >
                   {m.role === "user" ? (
@@ -143,44 +173,52 @@ export function ChatWidget() {
                   )}
                 </div>
 
+                {/* Message Bubble */}
                 <div
                   className={cn(
-                    "p-3 rounded-lg max-w-[80%]",
+                    "p-3 rounded-lg max-w-[85%]",
                     m.role === "user"
                       ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-muted text-foreground"
                   )}
                 >
-                  <div className="whitespace-pre-wrap">
+                  <div className="whitespace-pre-wrap leading-relaxed">
                     {renderContent(m.content)}
                   </div>
 
-                  {/* If products were returned with the message, show mini cards */}
+                  {/* Product Recommendations */}
                   {m.products && m.products.length > 0 && (
                     <div className="mt-3 grid gap-2 w-full">
                       {m.products.map((p) => (
                         <Link
                           key={p.id}
                           href={`/product/${p.slug}`}
-                          className="p-2 bg-background border rounded hover:border-primary transition-colors flex gap-2 items-center"
+                          className="p-2 bg-background border border-border rounded-md hover:border-primary transition-colors flex gap-3 items-center group"
                         >
-                          {p.images?.[0] && (
-                            <img
-                              src={p.images[0]}
-                              className="w-10 h-10 object-cover rounded"
-                            />
-                          )}
-                          <div className="overflow-hidden">
-                            <div className="font-medium">
+                          <div className="relative w-10 h-10 flex-shrink-0 bg-muted rounded-sm overflow-hidden">
+                            {p.images?.[0] ? (
+                              <Image
+                                src={p.images[0]}
+                                alt={p.name}
+                                fill
+                                className="object-cover"
+                                sizes="40px"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">
+                                No Img
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="overflow-hidden min-w-0">
+                            <div className="font-medium truncate text-foreground group-hover:text-primary transition-colors">
                               {p.name.length > 25
                                 ? p.name.slice(0, 22) + "..."
                                 : p.name}
                             </div>
-                            <div className="text-xs opacity-70">
-                              {new Intl.NumberFormat("en-NG", {
-                                style: "currency",
-                                currency: "NGN",
-                              }).format(p.price)}
+                            <div className="text-xs text-muted-foreground">
+                              {formatPrice(p.price)}
                             </div>
                           </div>
                         </Link>
@@ -190,13 +228,19 @@ export function ChatWidget() {
                 </div>
               </div>
             ))}
+
+            {/* Loading Indicator */}
             {isLoading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <Bot className="h-4 w-4" />
+                <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center">
+                  <Bot className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <div className="bg-muted p-3 rounded-lg">
-                  <span className="animate-pulse">Thinking...</span>
+                <div className="bg-muted p-3 rounded-lg border border-border">
+                  <div className="flex gap-1 h-4 items-center">
+                    <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce"></span>
+                  </div>
                 </div>
               </div>
             )}
@@ -204,7 +248,7 @@ export function ChatWidget() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t bg-background">
+          <div className="p-3 border-t border-border bg-background">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -217,8 +261,14 @@ export function ChatWidget() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about perfumes, gifts..."
                 className="flex-1"
+                autoFocus
               />
-              <Button type="submit" size={"icon"} disabled={isLoading}>
+              <Button
+                type="submit"
+                size="icon"
+                disabled={isLoading}
+                aria-label="Send message"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </form>
