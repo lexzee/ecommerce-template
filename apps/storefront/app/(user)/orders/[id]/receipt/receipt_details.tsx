@@ -44,11 +44,12 @@ export async function ReceiptDetails({ id }: { id: string }) {
             {siteConfig.name}
           </h1>
           <div className="text-sm mt-2 space-y-1 text-gray-600">
-            <p>{siteConfig.address.street}</p>
+            <p>{siteConfig.contact.address.street}</p>
             <p>
-              {siteConfig.address.state}, {siteConfig.address.country}
+              {siteConfig.contact.address.state},{" "}
+              {siteConfig.contact.address.country}
             </p>
-            <p>{siteConfig.address.email}</p>
+            <p>{siteConfig.contact.email}</p>
           </div>
         </div>
         <div className="text-right">
