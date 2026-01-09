@@ -11,7 +11,7 @@ interface PageProps {
 }
 
 export default async function ReceiptPage({ params }: PageProps) {
-  const address = siteConfig.address;
+  const address = siteConfig.contact.address;
   const { id } = await params;
 
   const user = await getUserManually();

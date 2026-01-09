@@ -1,7 +1,11 @@
+import { siteConfig } from "@/config/site";
+
+const currency = siteConfig.billing.currency;
+
 export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-NG", {
+  return new Intl.NumberFormat(currency.locale, {
     style: "currency",
-    currency: "NGN",
+    currency: currency.code,
   }).format(amount);
 };
 

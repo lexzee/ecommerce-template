@@ -40,7 +40,7 @@ export async function placeOrder(
 
   if (!cartItems || cartItems.length === 0) return { error: "Cart is empty" };
 
-  const vat = total * siteConfig.tax;
+  const vat = total * siteConfig.billing.taxRate;
 
   const { data: order, error: orderError } = await supabase
     .from("orders")

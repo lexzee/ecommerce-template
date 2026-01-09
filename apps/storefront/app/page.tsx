@@ -20,10 +20,10 @@ export default async function Page({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <main className="container py-10 mx-auto px-4 ">
-      {/* Hero */}
+    <main className="container py-10 mx-auto px-4 min-h-screen">
+      {/* Hero Section */}
       <section className="mb-12 space-y-4 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-foreground">
           {siteConfig.name}
         </h1>
         <p className="mx-auto max-w-[700px] text-lg text-muted-foreground">
@@ -32,12 +32,13 @@ export default async function Page({
       </section>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left Sidebar */}
-        {/* <aside className="w-full lg:w-64 flex-shrink-0"> */}
+        {/* Left Sidebar (Desktop) */}
         <aside className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-20">
             <Suspense
-              fallback={<div className="h-64 bg-gray-100 animate-pulse" />}
+              fallback={
+                <div className="h-64 bg-muted animate-pulse rounded-md" />
+              }
             >
               <ProductFilters />
             </Suspense>
@@ -46,10 +47,8 @@ export default async function Page({
 
         {/* Right Content */}
         <div className="flex-1">
-          <div className="flex sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            {/* <h2 className="text-xl font-semibold">
-              Catalog
-            </h2> */}
+          {/* Toolbar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div className="w-full lg:flex-1">
               <Suspense>
                 <SearchInput />
@@ -63,16 +62,18 @@ export default async function Page({
             </div>
           </div>
 
-          {/* ProductGrid */}
+          {/* Product Grid */}
           <Suspense fallback={<ProductGridSkeleton />}>
             <ProductGridServer searchParams={searchParams} />
           </Suspense>
         </div>
       </div>
 
-      <div className="fixed w-full h-10 bg-transparent z-20 bottom-7 flex justify-center items-center lg:hidden">
-        <div className="min-w-20 min-h-10 flex items-center bg-background rounded-md">
+      {/* Mobile Floating Controls */}
+      <div className="fixed left-0 right-0 z-20 bottom-8 flex justify-center pointer-events-none lg:hidden">
+        <div className="pointer-events-auto flex items-center bg-background border border-border rounded-full shadow-lg px-4 py-2 gap-4">
           <SortSelect />
+          <div className="h-6 w-px bg-border" /> {/* Divider */}
           <MobileFilters />
         </div>
       </div>
@@ -80,14 +81,14 @@ export default async function Page({
   );
 }
 
-// Simple Loading Skeleton
+// Semantic Skeleton Loader
 function ProductGridSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <div
           key={i}
-          className="h-[300px] w-full bg-gray-100 animate-pulse rounded-lg"
+          className="h-[300px] w-full bg-muted animate-pulse rounded-lg"
         />
       ))}
     </div>
