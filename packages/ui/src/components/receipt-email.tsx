@@ -1,5 +1,6 @@
 import {
   Body,
+  Button,
   Column,
   Container,
   Head,
@@ -21,6 +22,8 @@ interface ReceiptEmailProps {
   items: any[];
   totalAmount: number;
 }
+
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://store.com";
 
 export const ReceiptEmail = ({
   orderId,
@@ -119,6 +122,15 @@ export const ReceiptEmail = ({
                   </Text>
                 </Column>
               </Row>
+            </Section>
+
+            <Section className="text-center mt-[32px] mb-[32px]">
+              <Button
+                className="bg-[#000000] rounded text-white text-[12px] px-[20px] py-[12px] font-semibold no-underline text-center"
+                href={`${baseUrl}/orders/${orderId}/receipt`}
+              >
+                Print or Save Receipt
+              </Button>
             </Section>
 
             <Section className="mt-8 text-center">

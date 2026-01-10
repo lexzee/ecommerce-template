@@ -129,9 +129,8 @@ _I am ready to pay. Please confirm delivery details._`;
 
         const waUrl = `https://wa.me/${siteConfig.contact.phone}?text=${encodeURIComponent(message)}`;
 
-        window.open(waUrl, "_blank");
+        window.open(waUrl);
         cart.clearCart();
-        router.push(`/orders/${activeOrderId}/receipt`);
       }
     } catch (e: any) {
       console.error(e);

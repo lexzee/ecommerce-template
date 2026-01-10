@@ -205,13 +205,15 @@ async function RenderOrdersPage() {
                 </ul>
 
                 <div className="mt-6 pt-6 border-t border-border flex justify-between items-center">
-                  <Link
-                    href={`/orders/${order.id}/receipt`}
-                    className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Receipt className="mr-2 h-3.5 w-3.5" />
-                    Download Receipt
-                  </Link>
+                  {order.status !== "pending" && (
+                    <Link
+                      href={`/orders/${order.id}/receipt`}
+                      className="inline-flex items-center text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      <Receipt className="mr-2 h-3.5 w-3.5" />
+                      Download Receipt
+                    </Link>
+                  )}
 
                   {order.status === "pending" && (
                     <Link href={`/checkout?retry=${order.id}`}>
