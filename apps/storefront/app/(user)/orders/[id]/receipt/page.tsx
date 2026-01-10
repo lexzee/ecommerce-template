@@ -37,7 +37,7 @@ export default async function ReceiptPage({ params }: PageProps) {
   return (
     <div className="max-w-3xl mx-auto bg-white p-8 min-h-screen text-black">
       <Suspense fallback={<ReceiptSkeleton />}>
-        <ReceiptDetails id={id} />
+        <ReceiptDetails id={id} user={user} />
       </Suspense>
 
       {/* Print Specific CSS Override */}

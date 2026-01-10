@@ -2,7 +2,6 @@ import { PrintButton } from "@/components/orders/print_button";
 import { siteConfig } from "@/config/site";
 import { formatCurrency } from "@/lib/helpers";
 import { createClient } from "@/lib/supabase/client";
-import { getUserManually } from "@/lib/supabase/proxy";
 import {
   Table,
   TableBody,
@@ -11,12 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-export async function ReceiptDetails({ id }: { id: string }) {
-  const user = await getUserManually();
-  if (!user) redirect("/login");
-
+export async function ReceiptDetails({ id, user }: { id: string; user: any }) {
   const supabase = createClient();
   const { data: order } = await supabase
     .from("orders")
